@@ -1,96 +1,74 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <title>Planeta dos Retrovisores</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<title>Planeta dos Retrovisores</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: black;
-      color: white;
-    }
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    header {
-      text-align: center;
-      padding: 20px;
-      font-size: 28px;
-      font-weight: bold;
-      color: gold;
-      border-bottom: 1px solid #222;
-    }
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: black;
+  color: white;
+}
 
-    .container {
-      padding: 20px;
-      max-width: 1100px;
-      margin: auto;
-    }
+header {
+  text-align: center;
+  padding: 20px;
+  font-size: 26px;
+  font-weight: bold;
+  color: gold;
+  border-bottom: 1px solid #222;
+}
 
-    .cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 15px;
-      margin-bottom: 20px;
-    }
+.container {
+  padding: 15px;
+  max-width: 1200px;
+  margin: auto;
+}
 
-    .card {
-      background: #111;
-      border: 1px solid #222;
-      border-radius: 10px;
-      padding: 15px;
-    }
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px;
+  margin-bottom: 15px;
+}
 
-    .card h2 {
-      margin: 0;
-      font-size: 16px;
-      color: gold;
-    }
+.card {
+  background: #111;
+  border: 1px solid #222;
+  border-radius: 10px;
+  padding: 10px;
+}
 
-    .card span {
-      font-size: 22px;
-      font-weight: bold;
-    }
+.card h2 {
+  margin: 0;
+  font-size: 13px;
+  color: gold;
+}
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background: #111;
-      border-radius: 10px;
-      overflow: hidden;
-    }
+.card span {
+  font-size: 20px;
+  font-weight: bold;
+}
 
-    th {
-      background: #000;
-      color: gold;
-      padding: 10px;
-      font-size: 14px;
-      border-bottom: 1px solid #222;
-    }
+select, input {
+  background: black;
+  border: 1px solid #333;
+  color: white;
+  padding: 6px;
+  border-radius: 6px;
+}
 
-    td {
-      border-bottom: 1px solid #222;
-      padding: 6px;
-    }
-
-    input {
-      width: 100%;
-      background: black;
-      border: 1px solid #333;
-      color: white;
-      padding: 6px;
-      border-radius: 6px;
-    }
-
-    .saldo {
-      color: #888;
-      font-weight: bold;
-    }
-
-    .positivo { color: #00c853; }
-    .negativo { color: #ff5252; }
-  </style>
+canvas {
+  background: #111;
+  border-radius: 12px;
+  padding: 10px;
+}
+</style>
 </head>
 
 <body>
@@ -99,88 +77,107 @@
 
 <div class="container">
 
-  <div class="cards">
-    <div class="card">
-      <h2>Entradas</h2>
-      <span id="entradas">R$ 0,00</span>
-    </div>
+<div style="margin-bottom:10px;">
+  Mês:
+  <input type="month" id="mes">
+</div>
 
-    <div class="card">
-      <h2>Saídas</h2>
-      <span id="saidas">R$ 0,00</span>
-    </div>
-
-    <div class="card">
-      <h2>Resultado</h2>
-      <span id="resultado">R$ 0,00</span>
-    </div>
+<div class="cards">
+  <div class="card">
+    <h2>Total Entradas</h2>
+    <span id="totalEntradas">R$ 0,00</span>
   </div>
 
-  <table>
-    <thead>
-      <tr>
-        <th>Carro</th>
-        <th>Serviço</th>
-        <th>Entrada</th>
-        <th>Saída</th>
-        <th>Saldo</th>
-      </tr>
-    </thead>
-    <tbody id="linhas"></tbody>
-  </table>
+  <div class="card">
+    <h2>Total Saídas</h2>
+    <span id="totalSaidas">R$ 0,00</span>
+  </div>
+</div>
+
+<canvas id="grafico"></canvas>
 
 </div>
 
 <script>
-  const criarLinha = () => ({ carro: "", descricao: "", entrada: "", saida: "" });
+const mesInput = document.getElementById("mes");
+const hoje = new Date().toISOString().slice(0, 7);
+mesInput.value = hoje;
 
-  const linhas = Array.from({ length: 12 }, criarLinha);
+const moeda = (v) =>
+  v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
-  const toNumber = (v) => parseFloat((v || "").replace(",", ".")) || 0;
+function gerarDadosMes(mes) {
+  let dias = {};
+  let totalEntradas = 0;
+  let totalSaidas = 0;
 
-  const moeda = (v) =>
-    v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+  Object.keys(localStorage).forEach((k) => {
+    if (k.startsWith("planeta_" + mes)) {
+      const dados = JSON.parse(localStorage.getItem(k));
 
-  const tbody = document.getElementById("linhas");
+      dados.forEach(l => {
+        const dia = k.slice(-2);
 
-  function render() {
-    tbody.innerHTML = "";
+        if (!dias[dia]) dias[dia] = { entradas: 0, saidas: 0 };
 
-    let totalEntradas = 0;
-    let totalSaidas = 0;
+        dias[dia].entradas += parseFloat(l.entrada || 0) || 0;
+        dias[dia].saidas += parseFloat(l.saida || 0) || 0;
 
-    linhas.forEach((linha, i) => {
-      const saldo = toNumber(linha.entrada) - toNumber(linha.saida);
+        totalEntradas += parseFloat(l.entrada || 0) || 0;
+        totalSaidas += parseFloat(l.saida || 0) || 0;
+      });
+    }
+  });
 
-      totalEntradas += toNumber(linha.entrada);
-      totalSaidas += toNumber(linha.saida);
+  document.getElementById("totalEntradas").innerText = moeda(totalEntradas);
+  document.getElementById("totalSaidas").innerText = moeda(totalSaidas);
 
-      const tr = document.createElement("tr");
+  return dias;
+}
 
-      tr.innerHTML = `
-        <td><input onchange="atualizar(${i}, 'carro', this.value)"></td>
-        <td><input onchange="atualizar(${i}, 'descricao', this.value)"></td>
-        <td><input onchange="atualizar(${i}, 'entrada', this.value)"></td>
-        <td><input onchange="atualizar(${i}, 'saida', this.value)"></td>
-        <td class="saldo ${saldo >= 0 ? "positivo" : "negativo"}">${moeda(saldo)}</td>
-      `;
+function desenharGrafico(mes) {
+  const dadosMes = gerarDadosMes(mes);
 
-      tbody.appendChild(tr);
-    });
+  const labels = Object.keys(dadosMes).sort();
+  const entradas = labels.map(d => dadosMes[d].entradas);
+  const saidas = labels.map(d => dadosMes[d].saidas);
 
-    document.getElementById("entradas").innerText = moeda(totalEntradas);
-    document.getElementById("saidas").innerText = moeda(totalSaidas);
+  const ctx = document.getElementById("grafico");
 
-    const resultado = totalEntradas - totalSaidas;
-    document.getElementById("resultado").innerText = moeda(resultado);
-  }
+  new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels,
+      datasets: [
+        {
+          label: "Entradas",
+          data: entradas,
+        },
+        {
+          label: "Saídas",
+          data: saidas,
+        }
+      ]
+    },
+    options: {
+      plugins: {
+        legend: {
+          labels: { color: "white" }
+        }
+      },
+      scales: {
+        x: { ticks: { color: "white" } },
+        y: { ticks: { color: "white" } }
+      }
+    }
+  });
+}
 
-  function atualizar(index, campo, valor) {
-    linhas[index][campo] = valor;
-    render();
-  }
+mesInput.addEventListener("change", () => {
+  desenharGrafico(mesInput.value);
+});
 
-  render();
+desenharGrafico(hoje);
 </script>
 
 </body>
