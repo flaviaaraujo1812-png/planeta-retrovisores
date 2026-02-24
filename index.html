@@ -73,6 +73,7 @@ button {
   border-radius: 6px;
   font-weight: bold;
   cursor: pointer;
+  margin-top: 10px;
 }
 
 .totais {
@@ -123,15 +124,9 @@ canvas {
 </table>
 
 <div class="totais">
-  <div class="total-box">
-    Entrada<br><b id="totalEntrada">R$ 0,00</b>
-  </div>
-  <div class="total-box">
-    Saída<br><b id="totalSaida">R$ 0,00</b>
-  </div>
-  <div class="total-box">
-    Resultado<br><b id="resultado">R$ 0,00</b>
-  </div>
+  <div class="total-box">Entrada<br><b id="totalEntrada">R$ 0,00</b></div>
+  <div class="total-box">Saída<br><b id="totalSaida">R$ 0,00</b></div>
+  <div class="total-box">Resultado<br><b id="resultado">R$ 0,00</b></div>
 </div>
 
 <button onclick="salvarDia()">SALVAR DIA</button>
@@ -139,7 +134,7 @@ canvas {
 
 <div class="card">
   <b>Resumo Mensal</b>
-  <canvas id="grafico"></canvas>
+  <canvas id="grafico" height="120"></canvas>
 </div>
 
 </div>
@@ -174,15 +169,10 @@ function salvarDia() {
   alert("Dia salvo!");
 }
 
-function render() {
+function renderTabela() {
   linhasEl.innerHTML = "";
-  let totalE = 0;
-  let totalS = 0;
 
   linhas.forEach((l, i) => {
-    totalE += toNumber(l.entrada);
-    totalS += toNumber(l.saida);
-
     const tr = document.createElement("tr");
 
     tr.innerHTML = `
@@ -194,20 +184,38 @@ function render() {
 
     linhasEl.appendChild(tr);
   });
+}
+
+function atualizarTotais() {
+  let totalE = 0;
+  let totalS = 0;
+
+  linhas.forEach(l => {
+    totalE += toNumber(l.entrada);
+    totalS += toNumber(l.saida);
+  });
 
   document.getElementById("totalEntrada").innerText = moeda(totalE);
   document.getElementById("totalSaida").innerText = moeda(totalS);
   document.getElementById("resultado").innerText = moeda(totalE - totalS);
 }
 
+function salvarSilencioso() {
+  localStorage.setItem(chaveDia(), JSON.stringify(linhas));
+}
+
 function update(i, campo, valor) {
   linhas[i][campo] = valor;
-  render();
+
+  atualizarTotais();
+  salvarSilencioso();
 }
 
 dataInput.addEventListener("change", () => {
   carregarDia();
-  render();
+  renderTabela();
+  atualizarTotais();
+  atualizarGrafico();
 });
 
 let grafico;
@@ -215,8 +223,6 @@ let grafico;
 function atualizarGrafico() {
   const mes = dataInput.value.slice(0,7);
   const dias = {};
-  let entradas = [];
-  let saidas = [];
 
   Object.keys(localStorage).forEach(key => {
     if (!key.startsWith("planeta_" + mes)) return;
@@ -232,9 +238,9 @@ function atualizarGrafico() {
     });
   });
 
-  const labels = Object.keys(dias).sort();
-  entradas = labels.map(d => dias[d].e);
-  saidas = labels.map(d => dias[d].s);
+  const labels = Object.keys(dias).sort((a,b)=>a-b);
+  const entradas = labels.map(d => dias[d].e);
+  const saidas = labels.map(d => dias[d].s);
 
   const ctx = document.getElementById("grafico");
 
@@ -252,13 +258,10 @@ function atualizarGrafico() {
   });
 }
 
-function atualizarGraficoInicial() {
-  setTimeout(atualizarGrafico, 200);
-}
-
 carregarDia();
-render();
-atualizarGraficoInicial();
+renderTabela();
+atualizarTotais();
+atualizarGrafico();
 </script>
 
 </body>
