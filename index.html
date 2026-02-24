@@ -1,6 +1,108 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Planeta dos Retrovisores</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: black;
+  color: white;
+}
+
+header {
+  text-align: center;
+  padding: 20px;
+  font-size: 26px;
+  font-weight: bold;
+  color: gold;
+  border-bottom: 1px solid #222;
+}
+
+.container {
+  padding: 15px;
+  max-width: 1200px;
+  margin: auto;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.card {
+  background: #111;
+  border: 1px solid #222;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.card h2 {
+  margin: 0;
+  font-size: 13px;
+  color: gold;
+}
+
+.card span {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+input {
+  background: black;
+  border: 1px solid #333;
+  color: white;
+  padding: 6px;
+  border-radius: 6px;
+}
+
+canvas {
+  background: #111;
+  border-radius: 12px;
+  padding: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<header>PLANETA DOS RETROVISORES</header>
+
+<div class="container">
+
+  <div style="margin-bottom:10px;">
+    Mês:
+    <input type="month" id="mes">
+  </div>
+
+  <div class="cards">
+    <div class="card">
+      <h2>Total Entradas</h2>
+      <span id="totalEntradas">R$ 0,00</span>
+    </div>
+
+    <div class="card">
+      <h2>Total Saídas</h2>
+      <span id="totalSaidas">R$ 0,00</span>
+    </div>
+  </div>
+
+  <canvas id="grafico"></canvas>
+
+</div>
+
 <script>
+const mesInput = document.getElementById("mes");
+const hoje = new Date().toISOString().slice(0, 7);
+mesInput.value = hoje;
+
 const moeda = (v) =>
   v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
@@ -8,73 +110,27 @@ function toNumber(v) {
   return parseFloat((v || "0").replace(",", ".")) || 0;
 }
 
-// ===== GRÁFICO MENSAL =====
+function gerarDadosMes(mes) {
+  let dias = {};
+  let totalEntradas = 0;
+  let totalSaidas = 0;
 
-let grafico;
+  Object.keys(localStorage).forEach((k) => {
+    if (k.startsWith("planeta_" + mes)) {
+      const dados = JSON.parse(localStorage.getItem(k)) || [];
+      const dia = k.slice(-2);
 
-function lerDadosMes(mes) {
-  const dias = {};
+      if (!dias[dia]) dias[dia] = { entradas: 0, saidas: 0 };
 
-  Object.keys(localStorage).forEach((key) => {
+      dados.forEach(l => {
+        dias[dia].entradas += toNumber(l.entrada);
+        dias[dia].saidas += toNumber(l.saida);
 
-    if (!key.startsWith("planeta_")) return;
-
-    const data = key.replace("planeta_", "");
-    if (!data.startsWith(mes)) return;
-
-    const dia = data.slice(-2);
-    const registros = JSON.parse(localStorage.getItem(key)) || [];
-
-    if (!dias[dia]) dias[dia] = { entradas: 0, saidas: 0 };
-
-    registros.forEach(r => {
-      dias[dia].entradas += toNumber(r.entrada);
-      dias[dia].saidas += toNumber(r.saida);
-    });
-
+        totalEntradas += toNumber(l.entrada);
+        totalSaidas += toNumber(l.saida);
+      });
+    }
   });
 
-  return dias;
-}
-
-function atualizarGrafico() {
-
-  const data = document.getElementById("data").value;
-  const mes = data.slice(0, 7);
-
-  const dadosMes = lerDadosMes(mes);
-
-  const labels = Object.keys(dadosMes).sort((a,b)=>a-b);
-  const entradas = labels.map(d => dadosMes[d].entradas);
-  const saidas = labels.map(d => dadosMes[d].saidas);
-
-  const totalEntradas = entradas.reduce((a,b)=>a+b,0);
-  const totalSaidas = saidas.reduce((a,b)=>a+b,0);
-
-  document.getElementById("totalEntradasMes").innerText = moeda(totalEntradas);
-  document.getElementById("totalSaidasMes").innerText = moeda(totalSaidas);
-
-  const ctx = document.getElementById("grafico");
-
-  if (grafico) grafico.destroy();
-
-  grafico = new Chart(ctx, {
-    type: "bar",
-    data: {
-      labels,
-      datasets: [
-        {
-          label: "Entradas",
-          data: entradas,
-          backgroundColor: "green"
-        },
-        {
-          label: "Saídas",
-          data: saidas,
-          backgroundColor: "red"
-        }
-      ]
-    },
-    options: {
-      plugins: {
-        legend: { labels
+  document.getElementById("totalEntradas").innerText = moeda(totalEntradas);
+  document.getElementById
