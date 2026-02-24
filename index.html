@@ -5,7 +5,7 @@
 <title>Planeta dos Retrovisores</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
 <style>
 body {
@@ -17,17 +17,17 @@ body {
 
 header {
   text-align: center;
-  padding: 20px;
-  font-size: 26px;
+  padding: 18px;
+  font-size: 24px;
   font-weight: bold;
   color: gold;
   border-bottom: 1px solid #222;
 }
 
 .container {
-  padding: 15px;
-  max-width: 1000px;
+  max-width: 1200px;
   margin: auto;
+  padding: 15px;
 }
 
 .card {
@@ -38,25 +38,56 @@ header {
   margin-bottom: 10px;
 }
 
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+th {
+  color: gold;
+  border-bottom: 1px solid #222;
+  padding: 6px;
+}
+
+td {
+  border-bottom: 1px solid #222;
+  padding: 4px;
+}
+
 input {
   width: 100%;
-  margin: 4px 0;
-  padding: 6px;
+  padding: 5px;
   background: black;
   border: 1px solid #333;
   color: white;
   border-radius: 6px;
+  box-sizing: border-box;
 }
 
 button {
-  width: 100%;
-  padding: 8px;
-  margin-top: 5px;
   background: gold;
   border: none;
+  padding: 10px;
+  width: 100%;
   border-radius: 6px;
   font-weight: bold;
   cursor: pointer;
+}
+
+.totais {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.total-box {
+  background: #000;
+  border: 1px solid #222;
+  border-radius: 8px;
+  padding: 8px;
+  text-align: center;
 }
 
 canvas {
@@ -73,45 +104,53 @@ canvas {
 
 <div class="container">
 
-<label>Mês:</label>
-<input type="month" id="mes">
-
 <div class="card">
-  <strong>Total Entradas:</strong>
-  <div id="totalEntradas">R$ 0,00</div>
-
-  <strong>Total Saídas:</strong>
-  <div id="totalSaidas">R$ 0,00</div>
+  Data:
+  <input type="date" id="data">
 </div>
 
-<canvas id="grafico"></canvas>
+<div class="card">
+<table>
+<thead>
+<tr>
+  <th>Carro</th>
+  <th>Descrição</th>
+  <th>Entrada</th>
+  <th>Saída</th>
+</tr>
+</thead>
+<tbody id="linhas"></tbody>
+</table>
+
+<div class="totais">
+  <div class="total-box">
+    Entrada<br><b id="totalEntrada">R$ 0,00</b>
+  </div>
+  <div class="total-box">
+    Saída<br><b id="totalSaida">R$ 0,00</b>
+  </div>
+  <div class="total-box">
+    Resultado<br><b id="resultado">R$ 0,00</b>
+  </div>
+</div>
+
+<button onclick="salvarDia()">SALVAR DIA</button>
+</div>
 
 <div class="card">
-  <strong>Lançamento do Dia</strong>
-
-  <label>Dia:</label>
-  <input type="number" id="dia" min="1" max="31">
-
-  <label>Descrição:</label>
-  <input type="text" id="descricao">
-
-  <label>Entrada:</label>
-  <input type="text" id="entrada">
-
-  <label>Saída:</label>
-  <input type="text" id="saida">
-
-  <button onclick="salvar()">Salvar</button>
+  <b>Resumo Mensal</b>
+  <canvas id="grafico"></canvas>
 </div>
 
 </div>
 
 <script>
-const mesInput = document.getElementById("mes");
-const hoje = new Date().toISOString().slice(0, 7);
-mesInput.value = hoje;
+const linhasEl = document.getElementById("linhas");
+const dataInput = document.getElementById("data");
+const hoje = new Date().toISOString().slice(0,10);
+dataInput.value = hoje;
 
-let grafico;
+let linhas = [];
 
 const moeda = (v) =>
   v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -120,59 +159,82 @@ function toNumber(v) {
   return parseFloat((v || "0").replace(",", ".")) || 0;
 }
 
-function salvar() {
-  const mes = mesInput.value;
-  const dia = document.getElementById("dia").value.padStart(2, "0");
-  const descricao = document.getElementById("descricao").value;
-  const entrada = document.getElementById("entrada").value;
-  const saida = document.getElementById("saida").value;
-
-  if (!mes || !dia) return alert("Informe mês e dia");
-
-  const chave = "planeta_" + mes + "-" + dia;
-
-  const registros = JSON.parse(localStorage.getItem(chave)) || [];
-
-  registros.push({ descricao, entrada, saida });
-
-  localStorage.setItem(chave, JSON.stringify(registros));
-
-  location.reload();
+function chaveDia() {
+  return "planeta_" + dataInput.value;
 }
 
-function lerDadosMes(mes) {
-  const dias = {};
+function carregarDia() {
+  linhas = JSON.parse(localStorage.getItem(chaveDia())) ||
+           Array.from({ length: 25 }, () => ({ carro:"", desc:"", entrada:"", saida:"" }));
+}
 
-  Object.keys(localStorage).forEach((key) => {
+function salvarDia() {
+  localStorage.setItem(chaveDia(), JSON.stringify(linhas));
+  atualizarGrafico();
+  alert("Dia salvo!");
+}
+
+function render() {
+  linhasEl.innerHTML = "";
+  let totalE = 0;
+  let totalS = 0;
+
+  linhas.forEach((l, i) => {
+    totalE += toNumber(l.entrada);
+    totalS += toNumber(l.saida);
+
+    const tr = document.createElement("tr");
+
+    tr.innerHTML = `
+      <td><input value="${l.carro}" oninput="update(${i}, 'carro', this.value)"></td>
+      <td><input value="${l.desc}" oninput="update(${i}, 'desc', this.value)"></td>
+      <td><input value="${l.entrada}" oninput="update(${i}, 'entrada', this.value)"></td>
+      <td><input value="${l.saida}" oninput="update(${i}, 'saida', this.value)"></td>
+    `;
+
+    linhasEl.appendChild(tr);
+  });
+
+  document.getElementById("totalEntrada").innerText = moeda(totalE);
+  document.getElementById("totalSaida").innerText = moeda(totalS);
+  document.getElementById("resultado").innerText = moeda(totalE - totalS);
+}
+
+function update(i, campo, valor) {
+  linhas[i][campo] = valor;
+  render();
+}
+
+dataInput.addEventListener("change", () => {
+  carregarDia();
+  render();
+});
+
+let grafico;
+
+function atualizarGrafico() {
+  const mes = dataInput.value.slice(0,7);
+  const dias = {};
+  let entradas = [];
+  let saidas = [];
+
+  Object.keys(localStorage).forEach(key => {
     if (!key.startsWith("planeta_" + mes)) return;
 
     const dia = key.slice(-2);
-    const registros = JSON.parse(localStorage.getItem(key)) || [];
+    const regs = JSON.parse(localStorage.getItem(key)) || [];
 
-    if (!dias[dia]) dias[dia] = { entradas: 0, saidas: 0 };
+    if (!dias[dia]) dias[dia] = { e:0, s:0 };
 
-    registros.forEach(r => {
-      dias[dia].entradas += toNumber(r.entrada);
-      dias[dia].saidas += toNumber(r.saida);
+    regs.forEach(r => {
+      dias[dia].e += toNumber(r.entrada);
+      dias[dia].s += toNumber(r.saida);
     });
   });
 
-  return dias;
-}
-
-function atualizarGrafico() {
-  const mes = mesInput.value;
-  const dadosMes = lerDadosMes(mes);
-
-  const labels = Object.keys(dadosMes).sort((a,b)=>a-b);
-  const entradas = labels.map(d => dadosMes[d].entradas);
-  const saidas = labels.map(d => dadosMes[d].saidas);
-
-  const totalEntradas = entradas.reduce((a,b)=>a+b,0);
-  const totalSaidas = saidas.reduce((a,b)=>a+b,0);
-
-  document.getElementById("totalEntradas").innerText = moeda(totalEntradas);
-  document.getElementById("totalSaidas").innerText = moeda(totalSaidas);
+  const labels = Object.keys(dias).sort();
+  entradas = labels.map(d => dias[d].e);
+  saidas = labels.map(d => dias[d].s);
 
   const ctx = document.getElementById("grafico");
 
@@ -183,25 +245,20 @@ function atualizarGrafico() {
     data: {
       labels,
       datasets: [
-        { label: "Entradas", data: entradas },
-        { label: "Saídas", data: saidas }
+        { label:"Entradas", data: entradas },
+        { label:"Saídas", data: saidas }
       ]
-    },
-    options: {
-      plugins: {
-        legend: { labels: { color: "white" } }
-      },
-      scales: {
-        x: { ticks: { color: "white" } },
-        y: { ticks: { color: "white" } }
-      }
     }
   });
 }
 
-mesInput.addEventListener("change", atualizarGrafico);
+function atualizarGraficoInicial() {
+  setTimeout(atualizarGrafico, 200);
+}
 
-atualizarGrafico();
+carregarDia();
+render();
+atualizarGraficoInicial();
 </script>
 
 </body>
