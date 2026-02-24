@@ -1,51 +1,145 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-  <meta charset="UTF-8">
-  <title>Planeta dos Retrovisores</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: black;
-      color: white;
-    }
-    .box {
-      background: #18181b;
-      padding: 20px;
-      border-radius: 12px;
-      margin: 10px 0;
-    }
-    input {
-      width: 100%;
-      padding: 8px;
-      margin-top: 5px;
-      background: black;
-      border: 1px solid #333;
-      color: white;
-    }
-  </style>
-</head>
-<body>
+import { useState, useEffect } from "react";
+import { createClient } from "@supabase/supabase-js";
 
-  <h1 style="text-align:center;color:gold;">
-    PLANETA DOS RETROVISORES
-  </h1>
+const supabase = createClient(
+  "https://glnklpbsrngzhjaupqrp.supabase.co",
+  "sb_publishable_1NzZNo21wOHpmQwrR9QWbA_Uqqn-LwO"
+);
 
-  <div class="box">
-    <h2>Entradas</h2>
-    <input placeholder="Valor de entrada">
-  </div>
+export default function PlanetaVendasDiarias() {
+  const criarLinha = () => ({ carro: "", descricao: "", entrada: "", saida: "" });
 
-  <div class="box">
-    <h2>Saídas</h2>
-    <input placeholder="Valor de saída">
-  </div>
+  const hoje = new Date().toISOString().slice(0, 10);
+  const [dataSelecionada, setDataSelecionada] = useState(hoje);
+  const [linhas, setLinhas] = useState(Array.from({ length: 12 }, criarLinha));
 
-  <div class="box">
-    <h2>Lucro</h2>
-    <strong>R$ 0,00</strong>
-  </div>
+  const toNumber = (v) => parseFloat((v || "").replace(",", ".")) || 0;
+  const moeda = (v) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
-</body>
-</html>
+  const totalEntradas = linhas.reduce((s, l) => s + toNumber(l.entrada), 0);
+  const totalSaidas = linhas.reduce((s, l) => s + toNumber(l.saida), 0);
+  const resultado = totalEntradas - totalSaidas;
+
+  const saldoLinha = (l) => toNumber(l.entrada) - toNumber(l.saida);
+
+  const carregarSupabase = async (data) => {
+    const { data: dados } = await supabase
+      .from("vendas")
+      .select("*")
+      .eq("data", data)
+      .order("id", { ascending: true });
+
+    if (dados && dados.length) setLinhas(dados);
+    else setLinhas(Array.from({ length: 12 }, criarLinha));
+  };
+
+  useEffect(() => {
+    carregarSupabase(dataSelecionada);
+  }, [dataSelecionada]);
+
+  const salvarLinha = async (index) => {
+    const linha = linhas[index];
+
+    await supabase.from("vendas").upsert({
+      id: linha.id,
+      data: dataSelecionada,
+      carro: linha.carro,
+      descricao: linha.descricao,
+      entrada: linha.entrada,
+      saida: linha.saida,
+    });
+  };
+
+  const atualizar = (index, campo, valor) => {
+    const novas = [...linhas];
+    novas[index][campo] = valor;
+    setLinhas(novas);
+    salvarLinha(index);
+  };
+
+  const corResultado =
+    resultado виж > 0 ? "text-green-400" :
+    resultado < 0 ? "text-red-400" :
+    "text-zinc-400";
+
+  return (
+    <div className="min-h-screen bg-black text-white">
+      <div className="max-w-6xl mx-auto p-6 grid gap-6">
+
+        <header className="text-center space-y-1">
+          <h1 className="text-4xl font-bold text-yellow-400 tracking-wide">
+            PLANETA DOS RETROVISORES
+          </h1>
+          <p className="text-zinc-500">Controle Profissional de Vendas</p>
+        </header>
+
+        <div className="bg-zinc-900 rounded-2xl p-4 border border-zinc-800 flex items-center gap-3">
+          <span className="text-zinc-400">Data:</span>
+          <input
+            type="date"
+            value={dataSelecionada}
+            onChange={(e) => setDataSelecionada(e.target.value)}
+            className="bg-black border border-zinc-700 rounded-lg px-3 py-1 focus:outline-none focus:border-yellow-400"
+          />
+        </div>
+
+        <div className="grid md:grid-cols-3 gap-4">
+          <Card titulo="Entradas" valor={moeda(totalEntradas)} cor="text-green-400" />
+          <Card titulo="Saídas" valor={moeda(totalSaidas)} cor="text-red-400" />
+          <Card titulo="Resultado do Dia" valor={moeda(resultado)} cor={corResultado} grande />
+        </div>
+
+        <div className="bg-zinc-900 rounded-2xl p-4 border border-zinc-800 grid gap-3">
+          <div className="grid grid-cols-5 text-xs text-zinc-500 px-2 uppercase tracking-wider">
+            <span>Carro</span>
+            <span>Serviço</span>
+            <span>Entrada</span>
+            <span>Saída</span>
+            <span>Saldo</span>
+          </div>
+
+          {linhas.map((linha, i) => {
+            const saldo = saldoLinha(linha);
+            const corSaldo =
+              saldo > 0 ? "text-green-400" :
+              saldo < 0 ? "text-red-400" :
+              "text-zinc-500";
+
+            return (
+              <div key={i} className="grid grid-cols-5 gap-2">
+                <Input value={linha.carro || ""} onChange={(v) => atualizar(i, "carro", v)} />
+                <Input value={linha.descricao || ""} onChange={(v) => atualizar(i, "descricao", v)} />
+                <Input value={linha.entrada || ""} onChange={(v) => atualizar(i, "entrada", v)} />
+                <Input value={linha.saida || ""} onChange={(v) => atualizar(i, "saida", v)} />
+                <div className={`text-sm font-semibold ${corSaldo}`}>
+                  {moeda(saldo)}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Card({ titulo, valor, cor, grande }) {
+  return (
+    <div className="bg-zinc-900 rounded-2xl p-5 border border-zinc-800 shadow-xl hover:scale-[1.02] transition">
+      <h2 className="text-zinc-500 text-xs uppercase tracking-wider">{titulo}</h2>
+      <p className={`${grande ? "text-4xl" : "text-3xl"} font-bold ${cor}`}>
+        {valor}
+      </p>
+    </div>
+  );
+}
+
+function Input({ value, onChange }) {
+  return (
+    <input
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      className="bg-black border border-zinc-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-yellow-400 transition"
+    />
+  );
+}
