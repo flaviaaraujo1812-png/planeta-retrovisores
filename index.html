@@ -1,7 +1,96 @@
-<script>
-const mesInput = document.getElementById("mes");
-let grafico;
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Planeta dos Retrovisores</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<!-- Chart.js com fallback blindado -->
+<script>
+function carregarChart(callback) {
+  const script = document.createElement("script");
+  script.src = "https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js";
+
+  script.onload = callback;
+
+  script.onerror = () => {
+    console.log("CDN principal falhou, tentando fallback...");
+    const fallback = document.createElement("script");
+    fallback.src = "https://unpkg.com/chart.js@4.4.1/dist/chart.umd.min.js";
+    fallback.onload = callback;
+    document.head.appendChild(fallback);
+  };
+
+  document.head.appendChild(script);
+}
+</script>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: black;
+  color: white;
+}
+
+header {
+  text-align: center;
+  padding: 20px;
+  font-size: 26px;
+  font-weight: bold;
+  color: gold;
+  border-bottom: 1px solid #222;
+}
+
+.container {
+  padding: 15px;
+  max-width: 1200px;
+  margin: auto;
+}
+
+.card {
+  background: #111;
+  border: 1px solid #222;
+  border-radius: 10px;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+canvas {
+  background: #111;
+  border-radius: 12px;
+  padding: 10px;
+}
+
+input {
+  background: black;
+  border: 1px solid #333;
+  color: white;
+  padding: 6px;
+  border-radius: 6px;
+}
+</style>
+</head>
+
+<body>
+
+<header>PLANETA DOS RETROVISORES</header>
+
+<div class="container">
+  <div class="card">
+    Mês:
+    <input type="month" id="mes">
+  </div>
+
+  <div class="card">
+    <div>Total Entradas: <b id="totalEntradas">R$ 0,00</b></div>
+    <div>Total Saídas: <b id="totalSaidas">R$ 0,00</b></div>
+  </div>
+
+  <canvas id="grafico"></canvas>
+</div>
+
+<script>
 const moeda = (v) =>
   v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
@@ -15,23 +104,23 @@ function gerarDadosMes(mes) {
   let totalSaidas = 0;
 
   Object.keys(localStorage).forEach((k) => {
-    if (k.startsWith("planeta_" + mes)) {
-      const dados = JSON.parse(localStorage.getItem(k)) || [];
-      const dia = k.slice(-2);
+    if (!k.startsWith("planeta_" + mes)) return;
 
-      if (!dias[dia]) dias[dia] = { entradas: 0, saidas: 0 };
+    const dados = JSON.parse(localStorage.getItem(k)) || [];
+    const dia = k.slice(-2);
 
-      dados.forEach(l => {
-        const e = toNumber(l.entrada);
-        const s = toNumber(l.saida);
+    if (!dias[dia]) dias[dia] = { entradas: 0, saidas: 0 };
 
-        dias[dia].entradas += e;
-        dias[dia].saidas += s;
+    dados.forEach(l => {
+      const entrada = toNumber(l.entrada);
+      const saida = toNumber(l.saida);
 
-        totalEntradas += e;
-        totalSaidas += s;
-      });
-    }
+      dias[dia].entradas += entrada;
+      dias[dia].saidas += saida;
+
+      totalEntradas += entrada;
+      totalSaidas += saida;
+    });
   });
 
   document.getElementById("totalEntradas").innerText = moeda(totalEntradas);
@@ -39,6 +128,8 @@ function gerarDadosMes(mes) {
 
   return dias;
 }
+
+let grafico;
 
 function desenharGrafico(mes) {
   const dadosMes = gerarDadosMes(mes);
@@ -56,19 +147,21 @@ function desenharGrafico(mes) {
     data: {
       labels,
       datasets: [
-        {
-          label: "Entradas",
-          data: entradas,
-        },
-        {
-          label: "Saídas",
-          data: saidas,
-        }
+        { label: "Entradas", data: entradas },
+        { label: "Saídas", data: saidas }
       ]
+    },
+    options: {
+      plugins: { legend: { labels: { color: "white" } } },
+      scales: {
+        x: { ticks: { color: "white" } },
+        y: { ticks: { color: "white" } }
+      }
     }
   });
 }
 
+const mesInput = document.getElementById("mes");
 const hoje = new Date().toISOString().slice(0, 7);
 mesInput.value = hoje;
 
@@ -76,5 +169,11 @@ mesInput.addEventListener("change", () => {
   desenharGrafico(mesInput.value);
 });
 
-desenharGrafico(hoje);
+carregarChart(() => {
+  console.log("Chart.js carregado com sucesso");
+  desenharGrafico(hoje);
+});
 </script>
+
+</body>
+</html>
