@@ -14,7 +14,7 @@ table { width:100%; border-collapse:collapse; font-size:14px; }
 th { color:gold; border-bottom:1px solid #222; padding:6px; }
 td { border-bottom:1px solid #222; padding:4px; }
 input { width:100%; padding:5px; background:black; border:1px solid #333; color:white; border-radius:6px; box-sizing:border-box; }
-button { background:gold; border:none; padding:10px; width:100%; border-radius:6px; font-weight:bold; cursor:pointer; margin-top:10px; }
+button { background:gold; border:none; padding:10px; width:100%; border-radius:6px; font-weight:bold; cursor:pointer; margin-top:8px; }
 .totais { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:10px; }
 .total-box { background:#000; border:1px solid #222; border-radius:8px; padding:8px; text-align:center; }
 .resumo { font-size:15px; line-height:1.6; }
@@ -53,6 +53,7 @@ button { background:gold; border:none; padding:10px; width:100%; border-radius:6
 </div>
 
 <button onclick="salvarDia()">SALVAR DIA</button>
+<button onclick="gerarPDF()">SALVAR PDF DO DIA</button>
 </div>
 
 <div class="card resumo">
@@ -61,17 +62,8 @@ button { background:gold; border:none; padding:10px; width:100%; border-radius:6
   💰 Entradas do mês:<br>
   <span class="valor" id="mesEntradas">R$ 0,00</span><br><br>
 
-  💸 Saídas do mês:<br>
-  <span class="valor" id="mesSaidas">R$ 0,00</span><br><br>
-
-  📈 Resultado do mês:<br>
-  <span class="valor" id="mesResultado">R$ 0,00</span><br><br>
-
-  🔥 Melhor dia:<br>
-  <span id="melhorDia">--</span><br><br>
-
-  ⚠️ Dia mais fraco:<br>
-  <span id="piorDia">--</span>
+  📈 Melhor dia:<br>
+  <span id="melhorDia">--</span>
 </div>
 
 </div>
@@ -104,6 +96,10 @@ function salvarDia() {
   localStorage.setItem(chaveDia(), JSON.stringify(linhas));
   atualizarResumoMensal();
   alert("Dia salvo!");
+}
+
+function gerarPDF() {
+  window.print();
 }
 
 function renderTabela() {
@@ -145,33 +141,17 @@ function update(i,campo,valor) {
 
 function atualizarResumoMensal() {
   const mes = dataInput.value.slice(0,7);
-  const dias = {};
+  let total = 0;
 
   Object.keys(localStorage).forEach(key => {
     if (!key.startsWith("planeta_" + mes)) return;
 
-    const dia = key.slice(-2);
     const regs = JSON.parse(localStorage.getItem(key)) || [];
 
-    if (!dias[dia]) dias[dia] = 0;
-
-    regs.forEach(r => dias[dia] += toNumber(r.entrada));
+    regs.forEach(r => total += toNumber(r.entrada));
   });
 
-  const valores = Object.entries(dias);
-
-  if (!valores.length) return;
-
-  valores.sort((a,b)=>b[1]-a[1]);
-
-  const melhor = valores[0];
-  const pior = valores[valores.length-1];
-
-  const totalEntradas = valores.reduce((s,v)=>s+v[1],0);
-
-  document.getElementById("mesEntradas").innerText = moeda(totalEntradas);
-  document.getElementById("melhorDia").innerText = `Dia ${melhor[0]} → ${moeda(melhor[1])}`;
-  document.getElementById("piorDia").innerText = `Dia ${pior[0]} → ${moeda(pior[1])}`;
+  document.getElementById("mesEntradas").innerText = moeda(total);
 }
 
 dataInput.addEventListener("change", () => {
