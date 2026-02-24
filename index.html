@@ -1,145 +1,187 @@
-import { useState, useEffect } from "react";
-import { createClient } from "@supabase/supabase-js";
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Planeta dos Retrovisores</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-const supabase = createClient(
-  "https://glnklpbsrngzhjaupqrp.supabase.co",
-  "sb_publishable_1NzZNo21wOHpmQwrR9QWbA_Uqqn-LwO"
-);
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: black;
+      color: white;
+    }
 
-export default function PlanetaVendasDiarias() {
+    header {
+      text-align: center;
+      padding: 20px;
+      font-size: 28px;
+      font-weight: bold;
+      color: gold;
+      border-bottom: 1px solid #222;
+    }
+
+    .container {
+      padding: 20px;
+      max-width: 1100px;
+      margin: auto;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .card {
+      background: #111;
+      border: 1px solid #222;
+      border-radius: 10px;
+      padding: 15px;
+    }
+
+    .card h2 {
+      margin: 0;
+      font-size: 16px;
+      color: gold;
+    }
+
+    .card span {
+      font-size: 22px;
+      font-weight: bold;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #111;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    th {
+      background: #000;
+      color: gold;
+      padding: 10px;
+      font-size: 14px;
+      border-bottom: 1px solid #222;
+    }
+
+    td {
+      border-bottom: 1px solid #222;
+      padding: 6px;
+    }
+
+    input {
+      width: 100%;
+      background: black;
+      border: 1px solid #333;
+      color: white;
+      padding: 6px;
+      border-radius: 6px;
+    }
+
+    .saldo {
+      color: #888;
+      font-weight: bold;
+    }
+
+    .positivo { color: #00c853; }
+    .negativo { color: #ff5252; }
+  </style>
+</head>
+
+<body>
+
+<header>PLANETA DOS RETROVISORES</header>
+
+<div class="container">
+
+  <div class="cards">
+    <div class="card">
+      <h2>Entradas</h2>
+      <span id="entradas">R$ 0,00</span>
+    </div>
+
+    <div class="card">
+      <h2>Saídas</h2>
+      <span id="saidas">R$ 0,00</span>
+    </div>
+
+    <div class="card">
+      <h2>Resultado</h2>
+      <span id="resultado">R$ 0,00</span>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Carro</th>
+        <th>Serviço</th>
+        <th>Entrada</th>
+        <th>Saída</th>
+        <th>Saldo</th>
+      </tr>
+    </thead>
+    <tbody id="linhas"></tbody>
+  </table>
+
+</div>
+
+<script>
   const criarLinha = () => ({ carro: "", descricao: "", entrada: "", saida: "" });
 
-  const hoje = new Date().toISOString().slice(0, 10);
-  const [dataSelecionada, setDataSelecionada] = useState(hoje);
-  const [linhas, setLinhas] = useState(Array.from({ length: 12 }, criarLinha));
+  const linhas = Array.from({ length: 12 }, criarLinha);
 
   const toNumber = (v) => parseFloat((v || "").replace(",", ".")) || 0;
-  const moeda = (v) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
-  const totalEntradas = linhas.reduce((s, l) => s + toNumber(l.entrada), 0);
-  const totalSaidas = linhas.reduce((s, l) => s + toNumber(l.saida), 0);
-  const resultado = totalEntradas - totalSaidas;
+  const moeda = (v) =>
+    v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
-  const saldoLinha = (l) => toNumber(l.entrada) - toNumber(l.saida);
+  const tbody = document.getElementById("linhas");
 
-  const carregarSupabase = async (data) => {
-    const { data: dados } = await supabase
-      .from("vendas")
-      .select("*")
-      .eq("data", data)
-      .order("id", { ascending: true });
+  function render() {
+    tbody.innerHTML = "";
 
-    if (dados && dados.length) setLinhas(dados);
-    else setLinhas(Array.from({ length: 12 }, criarLinha));
-  };
+    let totalEntradas = 0;
+    let totalSaidas = 0;
 
-  useEffect(() => {
-    carregarSupabase(dataSelecionada);
-  }, [dataSelecionada]);
+    linhas.forEach((linha, i) => {
+      const saldo = toNumber(linha.entrada) - toNumber(linha.saida);
 
-  const salvarLinha = async (index) => {
-    const linha = linhas[index];
+      totalEntradas += toNumber(linha.entrada);
+      totalSaidas += toNumber(linha.saida);
 
-    await supabase.from("vendas").upsert({
-      id: linha.id,
-      data: dataSelecionada,
-      carro: linha.carro,
-      descricao: linha.descricao,
-      entrada: linha.entrada,
-      saida: linha.saida,
+      const tr = document.createElement("tr");
+
+      tr.innerHTML = `
+        <td><input onchange="atualizar(${i}, 'carro', this.value)"></td>
+        <td><input onchange="atualizar(${i}, 'descricao', this.value)"></td>
+        <td><input onchange="atualizar(${i}, 'entrada', this.value)"></td>
+        <td><input onchange="atualizar(${i}, 'saida', this.value)"></td>
+        <td class="saldo ${saldo >= 0 ? "positivo" : "negativo"}">${moeda(saldo)}</td>
+      `;
+
+      tbody.appendChild(tr);
     });
-  };
 
-  const atualizar = (index, campo, valor) => {
-    const novas = [...linhas];
-    novas[index][campo] = valor;
-    setLinhas(novas);
-    salvarLinha(index);
-  };
+    document.getElementById("entradas").innerText = moeda(totalEntradas);
+    document.getElementById("saidas").innerText = moeda(totalSaidas);
 
-  const corResultado =
-    resultado виж > 0 ? "text-green-400" :
-    resultado < 0 ? "text-red-400" :
-    "text-zinc-400";
+    const resultado = totalEntradas - totalSaidas;
+    document.getElementById("resultado").innerText = moeda(resultado);
+  }
 
-  return (
-    <div className="min-h-screen bg-black text-white">
-      <div className="max-w-6xl mx-auto p-6 grid gap-6">
+  function atualizar(index, campo, valor) {
+    linhas[index][campo] = valor;
+    render();
+  }
 
-        <header className="text-center space-y-1">
-          <h1 className="text-4xl font-bold text-yellow-400 tracking-wide">
-            PLANETA DOS RETROVISORES
-          </h1>
-          <p className="text-zinc-500">Controle Profissional de Vendas</p>
-        </header>
+  render();
+</script>
 
-        <div className="bg-zinc-900 rounded-2xl p-4 border border-zinc-800 flex items-center gap-3">
-          <span className="text-zinc-400">Data:</span>
-          <input
-            type="date"
-            value={dataSelecionada}
-            onChange={(e) => setDataSelecionada(e.target.value)}
-            className="bg-black border border-zinc-700 rounded-lg px-3 py-1 focus:outline-none focus:border-yellow-400"
-          />
-        </div>
-
-        <div className="grid md:grid-cols-3 gap-4">
-          <Card titulo="Entradas" valor={moeda(totalEntradas)} cor="text-green-400" />
-          <Card titulo="Saídas" valor={moeda(totalSaidas)} cor="text-red-400" />
-          <Card titulo="Resultado do Dia" valor={moeda(resultado)} cor={corResultado} grande />
-        </div>
-
-        <div className="bg-zinc-900 rounded-2xl p-4 border border-zinc-800 grid gap-3">
-          <div className="grid grid-cols-5 text-xs text-zinc-500 px-2 uppercase tracking-wider">
-            <span>Carro</span>
-            <span>Serviço</span>
-            <span>Entrada</span>
-            <span>Saída</span>
-            <span>Saldo</span>
-          </div>
-
-          {linhas.map((linha, i) => {
-            const saldo = saldoLinha(linha);
-            const corSaldo =
-              saldo > 0 ? "text-green-400" :
-              saldo < 0 ? "text-red-400" :
-              "text-zinc-500";
-
-            return (
-              <div key={i} className="grid grid-cols-5 gap-2">
-                <Input value={linha.carro || ""} onChange={(v) => atualizar(i, "carro", v)} />
-                <Input value={linha.descricao || ""} onChange={(v) => atualizar(i, "descricao", v)} />
-                <Input value={linha.entrada || ""} onChange={(v) => atualizar(i, "entrada", v)} />
-                <Input value={linha.saida || ""} onChange={(v) => atualizar(i, "saida", v)} />
-                <div className={`text-sm font-semibold ${corSaldo}`}>
-                  {moeda(saldo)}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function Card({ titulo, valor, cor, grande }) {
-  return (
-    <div className="bg-zinc-900 rounded-2xl p-5 border border-zinc-800 shadow-xl hover:scale-[1.02] transition">
-      <h2 className="text-zinc-500 text-xs uppercase tracking-wider">{titulo}</h2>
-      <p className={`${grande ? "text-4xl" : "text-3xl"} font-bold ${cor}`}>
-        {valor}
-      </p>
-    </div>
-  );
-}
-
-function Input({ value, onChange }) {
-  return (
-    <input
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      className="bg-black border border-zinc-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-yellow-400 transition"
-    />
-  );
-}
+</body>
+</html>
