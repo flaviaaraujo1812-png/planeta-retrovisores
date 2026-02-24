@@ -1,107 +1,6 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-<meta charset="UTF-8">
-<title>Planeta dos Retrovisores</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<style>
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: black;
-  color: white;
-}
-
-header {
-  text-align: center;
-  padding: 20px;
-  font-size: 26px;
-  font-weight: bold;
-  color: gold;
-  border-bottom: 1px solid #222;
-}
-
-.container {
-  padding: 15px;
-  max-width: 1200px;
-  margin: auto;
-}
-
-.cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 10px;
-  margin-bottom: 15px;
-}
-
-.card {
-  background: #111;
-  border: 1px solid #222;
-  border-radius: 10px;
-  padding: 10px;
-}
-
-.card h2 {
-  margin: 0;
-  font-size: 13px;
-  color: gold;
-}
-
-.card span {
-  font-size: 20px;
-  font-weight: bold;
-}
-
-input {
-  background: black;
-  border: 1px solid #333;
-  color: white;
-  padding: 6px;
-  border-radius: 6px;
-}
-
-canvas {
-  background: #111;
-  border-radius: 12px;
-  padding: 10px;
-}
-</style>
-</head>
-
-<body>
-
-<header>PLANETA DOS RETROVISORES</header>
-
-<div class="container">
-
-  <div style="margin-bottom:10px;">
-    Mês:
-    <input type="month" id="mes">
-  </div>
-
-  <div class="cards">
-    <div class="card">
-      <h2>Total Entradas</h2>
-      <span id="totalEntradas">R$ 0,00</span>
-    </div>
-
-    <div class="card">
-      <h2>Total Saídas</h2>
-      <span id="totalSaidas">R$ 0,00</span>
-    </div>
-  </div>
-
-  <canvas id="grafico"></canvas>
-
-</div>
-
 <script>
 const mesInput = document.getElementById("mes");
-const hoje = new Date().toISOString().slice(0, 7);
-mesInput.value = hoje;
+let grafico;
 
 const moeda = (v) =>
   v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -123,14 +22,59 @@ function gerarDadosMes(mes) {
       if (!dias[dia]) dias[dia] = { entradas: 0, saidas: 0 };
 
       dados.forEach(l => {
-        dias[dia].entradas += toNumber(l.entrada);
-        dias[dia].saidas += toNumber(l.saida);
+        const e = toNumber(l.entrada);
+        const s = toNumber(l.saida);
 
-        totalEntradas += toNumber(l.entrada);
-        totalSaidas += toNumber(l.saida);
+        dias[dia].entradas += e;
+        dias[dia].saidas += s;
+
+        totalEntradas += e;
+        totalSaidas += s;
       });
     }
   });
 
   document.getElementById("totalEntradas").innerText = moeda(totalEntradas);
-  document.getElementById
+  document.getElementById("totalSaidas").innerText = moeda(totalSaidas);
+
+  return dias;
+}
+
+function desenharGrafico(mes) {
+  const dadosMes = gerarDadosMes(mes);
+
+  const labels = Object.keys(dadosMes).sort((a,b)=>a-b);
+  const entradas = labels.map(d => dadosMes[d].entradas);
+  const saidas = labels.map(d => dadosMes[d].saidas);
+
+  const ctx = document.getElementById("grafico");
+
+  if (grafico) grafico.destroy();
+
+  grafico = new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels,
+      datasets: [
+        {
+          label: "Entradas",
+          data: entradas,
+        },
+        {
+          label: "Saídas",
+          data: saidas,
+        }
+      ]
+    }
+  });
+}
+
+const hoje = new Date().toISOString().slice(0, 7);
+mesInput.value = hoje;
+
+mesInput.addEventListener("change", () => {
+  desenharGrafico(mesInput.value);
+});
+
+desenharGrafico(hoje);
+</script>
