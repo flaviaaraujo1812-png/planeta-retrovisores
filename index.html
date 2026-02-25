@@ -13,12 +13,13 @@ header { text-align:center; padding:18px; font-size:24px; color:gold; border-bot
 table { width:100%; border-collapse:collapse; font-size:14px; }
 th { color:gold; border-bottom:1px solid #222; padding:6px; }
 td { border-bottom:1px solid #222; padding:4px; }
-input, select { width:100%; padding:5px; background:black; border:1px solid #333; color:white; border-radius:6px; box-sizing:border-box; }
+input { width:100%; padding:5px; background:black; border:1px solid #333; color:white; border-radius:6px; box-sizing:border-box; }
 button { background:gold; border:none; padding:10px; width:100%; border-radius:6px; font-weight:bold; cursor:pointer; margin-top:8px; }
 .totais { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:10px; }
 .total-box { background:#000; border:1px solid #222; border-radius:8px; padding:8px; text-align:center; }
 .resumo { font-size:15px; line-height:1.6; }
 .valor { font-size:20px; font-weight:bold; color:gold; }
+.destaque { color:gold; font-weight:bold; }
 </style>
 </head>
 
@@ -41,7 +42,6 @@ button { background:gold; border:none; padding:10px; width:100%; border-radius:6
   <th>Descrição</th>
   <th>Entrada</th>
   <th>Saída</th>
-  <th>Pagamento</th>
 </tr>
 </thead>
 <tbody id="linhas"></tbody>
@@ -54,135 +54,4 @@ button { background:gold; border:none; padding:10px; width:100%; border-radius:6
 </div>
 
 <button onclick="salvarDia()">SALVAR DIA</button>
-<button onclick="gerarPDF()">SALVAR PDF DO DIA</button>
-</div>
-
-<div class="card resumo">
-  <b>Resumo Mensal</b><br><br>
-  💰 Entradas do mês:<br>
-  <span class="valor" id="mesEntradas">R$ 0,00</span>
-</div>
-
-</div>
-
-<script>
-const linhasEl = document.getElementById("linhas");
-const dataInput = document.getElementById("data");
-const hoje = new Date().toISOString().slice(0,10);
-dataInput.value = hoje;
-
-let linhas = [];
-
-const moeda = (v) =>
-  v.toLocaleString("pt-BR", { style:"currency", currency:"BRL" });
-
-function toNumber(v) {
-  return parseFloat((v||"0").replace(",", ".")) || 0;
-}
-
-function chaveDia() {
-  return "planeta_" + dataInput.value;
-}
-
-function carregarDia() {
-  const salvo = JSON.parse(localStorage.getItem(chaveDia()));
-
-  if (salvo) {
-    linhas = salvo.map(l => ({
-      carro: l.carro || "",
-      desc: l.desc || "",
-      entrada: l.entrada || "",
-      saida: l.saida || "",
-      pagamento: l.pagamento || "" // ← compatível com antigo
-    }));
-  } else {
-    linhas = Array.from({ length:25 }, () => ({
-      carro:"", desc:"", entrada:"", saida:"", pagamento:""
-    }));
-  }
-}
-
-function salvarDia() {
-  localStorage.setItem(chaveDia(), JSON.stringify(linhas));
-  atualizarResumoMensal();
-  alert("Dia salvo!");
-}
-
-function gerarPDF() {
-  window.print();
-}
-
-function renderTabela() {
-  linhasEl.innerHTML = "";
-
-  linhas.forEach((l,i) => {
-    const tr = document.createElement("tr");
-
-    tr.innerHTML = `
-      <td><input value="${l.carro}" oninput="update(${i}, 'carro', this.value)"></td>
-      <td><input value="${l.desc}" oninput="update(${i}, 'desc', this.value)"></td>
-      <td><input value="${l.entrada}" oninput="update(${i}, 'entrada', this.value)"></td>
-      <td><input value="${l.saida}" oninput="update(${i}, 'saida', this.value)"></td>
-      <td>
-        <select onchange="update(${i}, 'pagamento', this.value)">
-          <option value="">–</option>
-          <option value="pix" ${l.pagamento==="pix"?"selected":""}>PIX</option>
-          <option value="dinheiro" ${l.pagamento==="dinheiro"?"selected":""}>Dinheiro</option>
-          <option value="cartao" ${l.pagamento==="cartao"?"selected":""}>Cartão</option>
-        </select>
-      </td>
-    `;
-
-    linhasEl.appendChild(tr);
-  });
-}
-
-function atualizarTotaisDia() {
-  let e=0, s=0;
-
-  linhas.forEach(l => {
-    e += toNumber(l.entrada);
-    s += toNumber(l.saida);
-  });
-
-  totalEntrada.innerText = moeda(e);
-  totalSaida.innerText = moeda(s);
-  resultado.innerText = moeda(e - s);
-
-  localStorage.setItem(chaveDia(), JSON.stringify(linhas));
-}
-
-function update(i,campo,valor) {
-  linhas[i][campo] = valor;
-  atualizarTotaisDia();
-}
-
-function atualizarResumoMensal() {
-  const mes = dataInput.value.slice(0,7);
-  let total = 0;
-
-  Object.keys(localStorage).forEach(key => {
-    if (!key.startsWith("planeta_" + mes)) return;
-
-    const regs = JSON.parse(localStorage.getItem(key)) || [];
-    regs.forEach(r => total += toNumber(r.entrada));
-  });
-
-  mesEntradas.innerText = moeda(total);
-}
-
-dataInput.addEventListener("change", () => {
-  carregarDia();
-  renderTabela();
-  atualizarTotaisDia();
-  atualizarResumoMensal();
-});
-
-carregarDia();
-renderTabela();
-atualizarTotaisDia();
-atualizarResumoMensal();
-</script>
-
-</body>
-</html>
+<button onclick="gerarPDF()">SALVAR PDF DO DIA</
