@@ -54,4 +54,167 @@ button { background:gold; border:none; padding:10px; width:100%; border-radius:6
 </div>
 
 <button onclick="salvarDia()">SALVAR DIA</button>
-<button onclick="gerarPDF()">SALVAR PDF DO DIA</
+<button onclick="gerarPDF()">SALVAR PDF DO DIA</button>
+</div>
+
+<div class="card resumo">
+  <b>Resumo Mensal</b><br><br>
+
+  💰 Total de Entradas:<br>
+  <span class="valor" id="mesEntradas">R$ 0,00</span><br><br>
+
+  💸 Total de Saídas:<br>
+  <span class="valor" id="mesSaidas">R$ 0,00</span><br><br>
+
+  📊 Faturamento do Mês:<br>
+  <span class="valor" id="mesFaturamento">R$ 0,00</span><br><br>
+
+  📈 Melhor dia:<br>
+  <span class="destaque" id="melhorDia">--</span><br><br>
+
+  📉 Pior dia:<br>
+  <span class="destaque" id="piorDia">--</span>
+</div>
+
+</div>
+
+<script>
+const linhasEl = document.getElementById("linhas");
+const dataInput = document.getElementById("data");
+
+const totalEntradaEl = document.getElementById("totalEntrada");
+const totalSaidaEl = document.getElementById("totalSaida");
+const resultadoEl = document.getElementById("resultado");
+
+const mesEntradasEl = document.getElementById("mesEntradas");
+const mesSaidasEl = document.getElementById("mesSaidas");
+const mesFaturamentoEl = document.getElementById("mesFaturamento");
+const melhorDiaEl = document.getElementById("melhorDia");
+const piorDiaEl = document.getElementById("piorDia");
+
+const hoje = new Date().toISOString().slice(0,10);
+dataInput.value = hoje;
+
+let linhas = [];
+
+const moeda = (v) =>
+  v.toLocaleString("pt-BR", { style:"currency", currency:"BRL" });
+
+function toNumber(v) {
+  return parseFloat((v||"0").replace(",", ".")) || 0;
+}
+
+function chaveDia() {
+  return "planeta_" + dataInput.value;
+}
+
+function carregarDia() {
+  linhas = JSON.parse(localStorage.getItem(chaveDia())) ||
+           Array.from({ length:25 }, () => ({ carro:"", desc:"", entrada:"", saida:"" }));
+}
+
+function salvarDia() {
+  localStorage.setItem(chaveDia(), JSON.stringify(linhas));
+  atualizarResumoMensal();
+  alert("Dia salvo!");
+}
+
+function gerarPDF() {
+  window.print();
+}
+
+function renderTabela() {
+  linhasEl.innerHTML = "";
+
+  linhas.forEach((l,i) => {
+    const tr = document.createElement("tr");
+
+    tr.innerHTML = `
+      <td><input value="${l.carro}" oninput="update(${i}, 'carro', this.value)"></td>
+      <td><input value="${l.desc}" oninput="update(${i}, 'desc', this.value)"></td>
+      <td><input value="${l.entrada}" oninput="update(${i}, 'entrada', this.value)"></td>
+      <td><input value="${l.saida}" oninput="update(${i}, 'saida', this.value)"></td>
+    `;
+
+    linhasEl.appendChild(tr);
+  });
+}
+
+function atualizarTotaisDia() {
+  let e=0, s=0;
+
+  linhas.forEach(l => {
+    e += toNumber(l.entrada);
+    s += toNumber(l.saida);
+  });
+
+  totalEntradaEl.innerText = moeda(e);
+  totalSaidaEl.innerText = moeda(s);
+  resultadoEl.innerText = moeda(e - s);
+
+  localStorage.setItem(chaveDia(), JSON.stringify(linhas));
+}
+
+function update(i,campo,valor) {
+  linhas[i][campo] = valor;
+  atualizarTotaisDia();
+}
+
+function atualizarResumoMensal() {
+  const mes = dataInput.value.slice(0,7);
+
+  let entradas = 0;
+  let saidas = 0;
+
+  let melhorValor = 0;
+  let piorValor = Infinity;
+  let melhorDiaTexto = "--";
+  let piorDiaTexto = "--";
+
+  Object.keys(localStorage).forEach(key => {
+    if (!key.startsWith("planeta_" + mes)) return;
+
+    const dataDia = key.replace("planeta_", "");
+    const regs = JSON.parse(localStorage.getItem(key)) || [];
+
+    let totalDia = 0;
+
+    regs.forEach(r => {
+      entradas += toNumber(r.entrada);
+      saidas += toNumber(r.saida);
+      totalDia += toNumber(r.entrada);
+    });
+
+    if (totalDia > melhorValor) {
+      melhorValor = totalDia;
+      melhorDiaTexto = dataDia + " → " + moeda(totalDia);
+    }
+
+    if (totalDia > 0 && totalDia < piorValor) {
+      piorValor = totalDia;
+      piorDiaTexto = dataDia + " → " + moeda(totalDia);
+    }
+  });
+
+  mesEntradasEl.innerText = moeda(entradas);
+  mesSaidasEl.innerText = moeda(saidas);
+  mesFaturamentoEl.innerText = moeda(entradas - saidas);
+  melhorDiaEl.innerText = melhorDiaTexto;
+  piorDiaEl.innerText = piorValor === Infinity ? "--" : piorDiaTexto;
+}
+
+dataInput.addEventListener("change", () => {
+  carregarDia();
+  renderTabela();
+  atualizarTotaisDia();
+  atualizarResumoMensal();
+});
+
+carregarDia();
+renderTabela();
+atualizarTotaisDia();
+atualizarResumoMensal();
+</script>
+
+</body>
+</html>
