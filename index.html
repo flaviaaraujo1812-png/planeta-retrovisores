@@ -13,7 +13,7 @@ header { text-align:center; padding:18px; font-size:24px; color:gold; border-bot
 table { width:100%; border-collapse:collapse; font-size:14px; }
 th { color:gold; border-bottom:1px solid #222; padding:6px; }
 td { border-bottom:1px solid #222; padding:4px; }
-input { width:100%; padding:5px; background:black; border:1px solid #333; color:white; border-radius:6px; box-sizing:border-box; }
+input, select { width:100%; padding:5px; background:black; border:1px solid #333; color:white; border-radius:6px; box-sizing:border-box; }
 button { background:gold; border:none; padding:10px; width:100%; border-radius:6px; font-weight:bold; cursor:pointer; margin-top:8px; }
 .totais { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:10px; }
 .total-box { background:#000; border:1px solid #222; border-radius:8px; padding:8px; text-align:center; }
@@ -40,6 +40,7 @@ button { background:gold; border:none; padding:10px; width:100%; border-radius:6
 <tr>
   <th>Carro</th>
   <th>Descrição</th>
+  <th>Pagamento</th>
   <th>Entrada</th>
   <th>Saída</th>
 </tr>
@@ -110,7 +111,7 @@ function chaveDia() {
 
 function carregarDia() {
   linhas = JSON.parse(localStorage.getItem(chaveDia())) ||
-           Array.from({ length:25 }, () => ({ carro:"", desc:"", entrada:"", saida:"" }));
+           Array.from({ length:25 }, () => ({ carro:"", desc:"", pag:"", entrada:"", saida:"" }));
 }
 
 function salvarDia() {
@@ -132,6 +133,14 @@ function renderTabela() {
     tr.innerHTML = `
       <td><input value="${l.carro}" oninput="update(${i}, 'carro', this.value)"></td>
       <td><input value="${l.desc}" oninput="update(${i}, 'desc', this.value)"></td>
+      <td>
+        <select onchange="update(${i}, 'pag', this.value)">
+          <option value="">--</option>
+          <option ${l.pag==="Dinheiro"?"selected":""}>Dinheiro</option>
+          <option ${l.pag==="Pix"?"selected":""}>Pix</option>
+          <option ${l.pag==="Cartão"?"selected":""}>Cartão</option>
+        </select>
+      </td>
       <td><input value="${l.entrada}" oninput="update(${i}, 'entrada', this.value)"></td>
       <td><input value="${l.saida}" oninput="update(${i}, 'saida', this.value)"></td>
     `;
@@ -165,56 +174,9 @@ function atualizarResumoMensal() {
 
   let entradas = 0;
   let saidas = 0;
+  let melhor = 0;
+  let pior = Infinity;
+  let melhorDia = "--";
+  let piorDia = "--";
 
-  let melhorValor = 0;
-  let piorValor = Infinity;
-  let melhorDiaTexto = "--";
-  let piorDiaTexto = "--";
-
-  Object.keys(localStorage).forEach(key => {
-    if (!key.startsWith("planeta_" + mes)) return;
-
-    const dataDia = key.replace("planeta_", "");
-    const regs = JSON.parse(localStorage.getItem(key)) || [];
-
-    let totalDia = 0;
-
-    regs.forEach(r => {
-      entradas += toNumber(r.entrada);
-      saidas += toNumber(r.saida);
-      totalDia += toNumber(r.entrada);
-    });
-
-    if (totalDia > melhorValor) {
-      melhorValor = totalDia;
-      melhorDiaTexto = dataDia + " → " + moeda(totalDia);
-    }
-
-    if (totalDia > 0 && totalDia < piorValor) {
-      piorValor = totalDia;
-      piorDiaTexto = dataDia + " → " + moeda(totalDia);
-    }
-  });
-
-  mesEntradasEl.innerText = moeda(entradas);
-  mesSaidasEl.innerText = moeda(saidas);
-  mesFaturamentoEl.innerText = moeda(entradas - saidas);
-  melhorDiaEl.innerText = melhorDiaTexto;
-  piorDiaEl.innerText = piorValor === Infinity ? "--" : piorDiaTexto;
-}
-
-dataInput.addEventListener("change", () => {
-  carregarDia();
-  renderTabela();
-  atualizarTotaisDia();
-  atualizarResumoMensal();
-});
-
-carregarDia();
-renderTabela();
-atualizarTotaisDia();
-atualizarResumoMensal();
-</script>
-
-</body>
-</html>
+  Object.keys(localStorage).forEach(key
