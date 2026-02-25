@@ -13,8 +13,8 @@ header { text-align:center; padding:18px; font-size:24px; color:gold; border-bot
 table { width:100%; border-collapse:collapse; font-size:14px; }
 th { color:gold; border-bottom:1px solid #222; padding:6px; }
 td { border-bottom:1px solid #222; padding:4px; }
-input, select { width:100%; padding:5px; background:black; border:1px solid #333; color:white; border-radius:6px; box-sizing:border-box; }
-button { background:gold; border:none; padding:10px; width:100%; border-radius:6px; font-weight:bold; cursor:pointer; margin-top:8px; }
+input, select { width:100%; padding:6px; background:black; border:1px solid #333; color:white; border-radius:6px; box-sizing:border-box; }
+button { background:gold; border:none; padding:12px; width:100%; border-radius:6px; font-weight:bold; cursor:pointer; margin-top:8px; }
 .totais { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:10px; }
 .total-box { background:#000; border:1px solid #222; border-radius:8px; padding:8px; text-align:center; }
 .resumo { font-size:15px; line-height:1.7; }
@@ -29,28 +29,28 @@ button { background:gold; border:none; padding:10px; width:100%; border-radius:6
 <div class="container">
 
 <div class="card">
-  Data:
-  <input type="date" id="data">
+Data:
+<input type="date" id="data">
 </div>
 
 <div class="card">
 <table>
 <thead>
 <tr>
-  <th>Carro</th>
-  <th>Descrição</th>
-  <th>Pagamento</th>
-  <th>Entrada</th>
-  <th>Saída</th>
+<th>Carro</th>
+<th>Descrição</th>
+<th>Pagamento</th>
+<th>Entrada</th>
+<th>Saída</th>
 </tr>
 </thead>
 <tbody id="linhas"></tbody>
 </table>
 
 <div class="totais">
-  <div class="total-box">Entrada<br><b id="totalEntrada">R$ 0,00</b></div>
-  <div class="total-box">Saída<br><b id="totalSaida">R$ 0,00</b></div>
-  <div class="total-box">Resultado<br><b id="resultado">R$ 0,00</b></div>
+<div class="total-box">Entrada<br><b id="totalEntrada">R$ 0,00</b></div>
+<div class="total-box">Saída<br><b id="totalSaida">R$ 0,00</b></div>
+<div class="total-box">Resultado<br><b id="resultado">R$ 0,00</b></div>
 </div>
 
 <button onclick="salvarDia()">SALVAR DIA</button>
@@ -58,22 +58,22 @@ button { background:gold; border:none; padding:10px; width:100%; border-radius:6
 </div>
 
 <div class="card resumo">
-  <b>Resumo Mensal</b><br><br>
+<b>Resumo Mensal</b><br><br>
 
-  💰 Total de Entradas:<br>
-  <span class="valor" id="mesEntradas">R$ 0,00</span><br>
+💰 Total de Entradas:<br>
+<span class="valor" id="mesEntradas">R$ 0,00</span><br>
 
-  💸 Total de Saídas:<br>
-  <span class="valor" id="mesSaidas">R$ 0,00</span><br>
+💸 Total de Saídas:<br>
+<span class="valor" id="mesSaidas">R$ 0,00</span><br>
 
-  📊 Faturamento do Mês:<br>
-  <span class="valor" id="mesLucro">R$ 0,00</span><br><br>
+📊 Faturamento do Mês:<br>
+<span class="valor" id="mesLucro">R$ 0,00</span><br><br>
 
-  🏆 Melhor dia:<br>
-  <span id="melhorDia">--</span><br><br>
+🏆 Melhor dia:<br>
+<span id="melhorDia">--</span><br><br>
 
-  📉 Menor venda:<br>
-  <span id="piorDia">--</span>
+📉 Menor venda:<br>
+<span id="piorDia">--</span>
 </div>
 
 </div>
@@ -86,130 +86,136 @@ dataInput.value = new Date().toISOString().slice(0,10);
 let linhas = [];
 
 const moeda = (v) =>
-  v.toLocaleString("pt-BR", { style:"currency", currency:"BRL" });
+v.toLocaleString("pt-BR", { style:"currency", currency:"BRL" });
 
 function toNumber(v) {
-  return parseFloat((v||"0").replace(",", ".")) || 0;
+return parseFloat((v||"0").replace(",", ".")) || 0;
 }
 
 function chaveDia() {
-  return "planeta_" + dataInput.value;
+return "planeta_" + dataInput.value;
+}
+
+function criarLinhasPadrao() {
+return Array.from({ length:25 }, () => ({
+carro:"",
+desc:"",
+pag:"Dinheiro",
+entrada:"",
+saida:""
+}));
 }
 
 function carregarDia() {
-  linhas = JSON.parse(localStorage.getItem(chaveDia())) ||
-           Array.from({ length:25 }, () => ({ carro:"", desc:"", pag:"Dinheiro", entrada:"", saida:"" }));
+linhas = JSON.parse(localStorage.getItem(chaveDia())) || criarLinhasPadrao();
 }
 
 function salvarDia() {
-  localStorage.setItem(chaveDia(), JSON.stringify(linhas));
-  atualizarResumoMensal();
-  alert("Dia salvo!");
+localStorage.setItem(chaveDia(), JSON.stringify(linhas));
+atualizarResumoMensal();
+alert("Dia salvo!");
 }
 
 function gerarPDF() {
-  window.print();
+window.print();
 }
 
 function renderTabela() {
-  linhasEl.innerHTML = "";
+linhasEl.innerHTML = "";
 
-  linhas.forEach((l,i) => {
-    const tr = document.createElement("tr");
+linhas.forEach((l,i) => {
+const tr = document.createElement("tr");
 
-    tr.innerHTML = `
-      <td><input value="${l.carro}" oninput="update(${i}, 'carro', this.value)"></td>
-      <td><input value="${l.desc}" oninput="update(${i}, 'desc', this.value)"></td>
-      <td>
-        <select onchange="update(${i}, 'pag', this.value)">
-          <option ${l.pag=="Dinheiro"?"selected":""}>Dinheiro</option>
-          <option ${l.pag=="Pix"?"selected":""}>Pix</option>
-          <option ${l.pag=="Cartão"?"selected":""}>Cartão</option>
-        </select>
-      </td>
-      <td><input value="${l.entrada}" oninput="update(${i}, 'entrada', this.value)"></td>
-      <td><input value="${l.saida}" oninput="update(${i}, 'saida', this.value)"></td>
-    `;
+tr.innerHTML = `
+<td><input value="${l.carro}" oninput="update(${i}, 'carro', this.value)"></td>
+<td><input value="${l.desc}" oninput="update(${i}, 'desc', this.value)"></td>
+<td>
+<select onchange="update(${i}, 'pag', this.value)">
+<option ${l.pag=="Dinheiro"?"selected":""}>Dinheiro</option>
+<option ${l.pag=="Pix"?"selected":""}>Pix</option>
+<option ${l.pag=="Cartão"?"selected":""}>Cartão</option>
+</select>
+</td>
+<td><input value="${l.entrada}" oninput="update(${i}, 'entrada', this.value)"></td>
+<td><input value="${l.saida}" oninput="update(${i}, 'saida', this.value)"></td>
+`;
 
-    linhasEl.appendChild(tr);
-  });
+linhasEl.appendChild(tr);
+});
 }
 
 function atualizarTotaisDia() {
-  let e=0, s=0;
+let e=0, s=0;
 
-  linhas.forEach(l => {
-    e += toNumber(l.entrada);
-    s += toNumber(l.saida);
-  });
+linhas.forEach(l => {
+e += toNumber(l.entrada);
+s += toNumber(l.saida);
+});
 
-  document.getElementById("totalEntrada").innerText = moeda(e);
-  document.getElementById("totalSaida").innerText = moeda(s);
-  document.getElementById("resultado").innerText = moeda(e - s);
+document.getElementById("totalEntrada").innerText = moeda(e);
+document.getElementById("totalSaida").innerText = moeda(s);
+document.getElementById("resultado").innerText = moeda(e - s);
 
-  localStorage.setItem(chaveDia(), JSON.stringify(linhas));
+localStorage.setItem(chaveDia(), JSON.stringify(linhas));
 }
 
 function update(i,campo,valor) {
-  linhas[i][campo] = valor;
-  atualizarTotaisDia();
+linhas[i][campo] = valor;
+atualizarTotaisDia();
 }
 
 function atualizarResumoMensal() {
-  const mes = dataInput.value.slice(0,7);
+const mes = dataInput.value.slice(0,7);
 
-  let entradas = 0;
-  let saidas = 0;
+let entradas = 0;
+let saidas = 0;
+let melhorValor = 0;
+let piorValor = Infinity;
+let melhorDia = "--";
+let piorDia = "--";
 
-  let melhorValor = 0;
-  let piorValor = Infinity;
-  let melhorDia = "--";
-  let piorDia = "--";
+Object.keys(localStorage).forEach(key => {
 
-  Object.keys(localStorage).forEach(key => {
+if (!key.startsWith("planeta_" + mes)) return;
 
-    if (!key.startsWith("planeta_" + mes)) return;
+const regs = JSON.parse(localStorage.getItem(key)) || [];
+let totalDia = 0;
 
-    const regs = JSON.parse(localStorage.getItem(key)) || [];
+regs.forEach(r => {
+const e = toNumber(r.entrada);
+const s = toNumber(r.saida);
 
-    let totalDia = 0;
+entradas += e;
+saidas += s;
+totalDia += e;
+});
 
-    regs.forEach(r => {
-      const e = toNumber(r.entrada);
-      const s = toNumber(r.saida);
+const dia = key.replace("planeta_", "");
 
-      entradas += e;
-      saidas += s;
+if (totalDia > melhorValor) {
+melhorValor = totalDia;
+melhorDia = dia + " → " + moeda(totalDia);
+}
 
-      totalDia += e;
-    });
+if (totalDia < piorValor && totalDia > 0) {
+piorValor = totalDia;
+piorDia = dia + " → " + moeda(totalDia);
+}
 
-    const dia = key.replace("planeta_", "");
+});
 
-    if (totalDia > melhorValor) {
-      melhorValor = totalDia;
-      melhorDia = dia + " → " + moeda(totalDia);
-    }
-
-    if (totalDia < piorValor && totalDia > 0) {
-      piorValor = totalDia;
-      piorDia = dia + " → " + moeda(totalDia);
-    }
-
-  });
-
-  document.getElementById("mesEntradas").innerText = moeda(entradas);
-  document.getElementById("mesSaidas").innerText = moeda(saidas);
-  document.getElementById("mesLucro").innerText = moeda(entradas - saidas);
-  document.getElementById("melhorDia").innerText = melhorDia;
-  document.getElementById("piorDia").innerText = piorDia;
+document.getElementById("mesEntradas").innerText = moeda(entradas);
+document.getElementById("mesSaidas").innerText = moeda(saidas);
+document.getElementById("mesLucro").innerText = moeda(entradas - saidas);
+document.getElementById("melhorDia").innerText = melhorDia;
+document.getElementById("piorDia").innerText = piorDia;
 }
 
 dataInput.addEventListener("change", () => {
-  carregarDia();
-  renderTabela();
-  atualizarTotaisDia();
-  atualizarResumoMensal();
+carregarDia();
+renderTabela();
+atualizarTotaisDia();
+atualizarResumoMensal();
 });
 
 carregarDia();
