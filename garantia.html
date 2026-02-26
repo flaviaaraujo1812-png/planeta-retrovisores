@@ -1,1 +1,110 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Orçamento - Planeta dos Retrovisores</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<style>
+body { margin:0; font-family:Arial; background:black; color:white; }
+header { text-align:center; padding:20px; border-bottom:2px solid gold; }
+header h1 { color:gold; margin:0; }
+header p { margin:3px 0; font-size:14px; }
+.container { max-width:1100px; margin:auto; padding:20px; }
+.card { background:#111; border:1px solid #222; border-radius:10px; padding:15px; margin-bottom:15px; }
+input, select { width:100%; padding:8px; margin-bottom:8px; background:black; border:1px solid #333; color:white; border-radius:6px; }
+table { width:100%; border-collapse:collapse; }
+th { color:gold; border-bottom:1px solid #333; padding:6px; }
+td { border-bottom:1px solid #222; padding:5px; }
+button { background:gold; border:none; padding:12px; width:100%; border-radius:6px; font-weight:bold; cursor:pointer; margin-top:10px; }
+.valor { color:gold; font-weight:bold; }
+.total-box { text-align:right; margin-top:10px; }
+</style>
+</head>
+
+<body>
+
+<header>
+<h1>PLANETA DOS RETROVISORES</h1>
+<p>CNPJ: 48.027.075/0001-92</p>
+<p>Endereço: CEP 14090-260 - Av Treze de Maio, 1310</p>
+<p>Telefone / WhatsApp: (16) 99607-3421</p>
+</header>
+
+<div class="container">
+
+<div class="card">
+<h3>Dados do Cliente</h3>
+<input placeholder="Nome do Cliente">
+<input placeholder="Telefone">
+<input placeholder="Placa">
+<input placeholder="Modelo do Veículo">
+<input type="date">
+</div>
+
+<div class="card">
+<h3>Itens do Orçamento</h3>
+
+<table>
+<thead>
+<tr>
+<th>Descrição</th>
+<th>Qtd</th>
+<th>Valor Unit.</th>
+<th>Total</th>
+</tr>
+</thead>
+<tbody id="itens"></tbody>
+</table>
+
+<div class="total-box">
+Subtotal: <span class="valor" id="subtotal">R$ 0,00</span><br>
+Desconto: <input id="desconto" style="width:120px; display:inline-block;" oninput="calcular()"><br>
+Total Final: <span class="valor" id="totalFinal">R$ 0,00</span>
+</div>
+
+<select>
+<option>Dinheiro</option>
+<option>Pix</option>
+<option>Cartão</option>
+</select>
+
+<button onclick="window.print()">GERAR PDF</button>
+</div>
+
+</div>
+
+<script>
+const itens = document.getElementById("itens");
+
+function moeda(v){return v.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});}
+function toNumber(v){return parseFloat((v||"0").replace(",", "."))||0;}
+
+for(let i=0;i<15;i++){
+let tr=document.createElement("tr");
+tr.innerHTML=`
+<td><input oninput="calcular()"></td>
+<td><input oninput="calcular()"></td>
+<td><input oninput="calcular()"></td>
+<td><span>R$ 0,00</span></td>
+`;
+itens.appendChild(tr);
+}
+
+function calcular(){
+let subtotal=0;
+[...itens.children].forEach(tr=>{
+let qtd=toNumber(tr.children[1].children[0].value);
+let val=toNumber(tr.children[2].children[0].value);
+let total=qtd*val;
+tr.children[3].children[0].innerText=moeda(total);
+subtotal+=total;
+});
+let desconto=toNumber(document.getElementById("desconto").value);
+document.getElementById("subtotal").innerText=moeda(subtotal);
+document.getElementById("totalFinal").innerText=moeda(subtotal-desconto);
+}
+</script>
+
+</body>
+</html>
