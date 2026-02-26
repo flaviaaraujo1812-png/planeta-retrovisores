@@ -8,35 +8,74 @@
 <style>
 body { margin:0; font-family:Arial; background:black; color:white; }
 header { text-align:center; padding:20px; border-bottom:2px solid gold; }
-header h1 { color:gold; margin:0; }
-header p { margin:3px 0; font-size:14px; }
-.numero { color:gold; font-size:14px; margin-top:5px; }
+header img { max-width:220px; margin-bottom:10px; }
+.numero { margin-top:10px; font-size:14px; color:#ccc; }
 
 .container { max-width:1100px; margin:auto; padding:20px; }
 .card { background:#111; border:1px solid #222; border-radius:10px; padding:15px; margin-bottom:15px; }
 
-input, select { width:100%; padding:8px; margin-bottom:8px; background:black; border:1px solid #333; color:white; border-radius:6px; }
+input, select {
+width:100%;
+padding:8px;
+margin-bottom:8px;
+background:black;
+border:1px solid #333;
+color:white;
+border-radius:6px;
+}
 
 table { width:100%; border-collapse:collapse; }
 th { color:gold; border-bottom:1px solid #333; padding:6px; }
 td { border-bottom:1px solid #222; padding:5px; }
 
-button { background:gold; border:none; padding:12px; width:100%; border-radius:6px; font-weight:bold; cursor:pointer; margin-top:10px; }
-
-.valor { color:gold; font-weight:bold; }
-.total-box { text-align:right; margin-top:10px; font-size:18px; }
+button {
+background:gold;
+border:none;
+padding:12px;
+width:100%;
+border-radius:6px;
+font-weight:bold;
+cursor:pointer;
+margin-top:10px;
+}
 
 .whats { background:#25D366; color:white; }
+
+.valor { color:gold; font-weight:bold; }
+
+.total-box {
+text-align:right;
+margin-top:10px;
+font-size:18px;
+}
+
+.termo {
+margin-top:20px;
+font-size:13px;
+color:#ccc;
+border-top:1px solid #333;
+padding-top:15px;
+line-height:1.6;
+}
+
+footer {
+text-align:center;
+padding:15px;
+font-size:12px;
+border-top:1px solid #222;
+margin-top:20px;
+color:#888;
+}
 </style>
 </head>
 
 <body>
 
 <header>
-<h1>PLANETA DOS RETROVISORES</h1>
+<img src="logo.png" alt="Logo Planeta dos Retrovisores">
 <p>CNPJ: 48.027.075/0001-92</p>
-<p>Endereço: CEP 14090-260 - Av Treze de Maio, 1310</p>
-<p>Telefone / WhatsApp: (16) 99607-3421</p>
+<p>Av Treze de Maio, 1310 - CEP 14090-260</p>
+<p>WhatsApp: (16) 99607-3421</p>
 <div class="numero" id="numeroOrcamento"></div>
 </header>
 
@@ -45,7 +84,7 @@ button { background:gold; border:none; padding:12px; width:100%; border-radius:6
 <div class="card">
 <h3>Dados do Cliente</h3>
 <input id="cliente" placeholder="Nome do Cliente">
-<input id="telefone" placeholder="Telefone">
+<input placeholder="Telefone">
 <input placeholder="Placa">
 <input placeholder="Modelo do Veículo">
 <input type="date">
@@ -79,4 +118,90 @@ Total Final: <span class="valor" id="totalFinal">R$ 0,00</span>
 </select>
 
 <button onclick="window.print()">GERAR PDF</button>
-<button class="whats" onclick="enviarWhatsApp()">ENVIAR PELO WH
+<button class="whats" onclick="enviarWhatsApp()">ENVIAR PELO WHATSAPP</button>
+
+<div class="termo">
+<b style="color:gold;">TERMO DE GARANTIA</b><br><br>
+
+A PLANETA DOS RETROVISORES garante as peças e serviços executados pelo prazo de 30 (trinta) dias a partir da data da emissão deste documento.<br><br>
+
+A garantia cobre exclusivamente defeitos de fabricação ou falhas na instalação realizadas pela empresa.<br><br>
+
+Não estão cobertos:<br>
+• Mau uso ou instalação por terceiros<br>
+• Danos causados por acidentes<br>
+• Modificações após o serviço<br>
+• Problemas elétricos externos ao serviço executado<br><br>
+
+Para acionamento da garantia é obrigatória a apresentação deste orçamento.<br><br>
+
+⚠️ Este orçamento possui validade de 30 dias.
+</div>
+
+</div>
+
+<footer>
+PLANETA DOS RETROVISORES - CNPJ 48.027.075/0001-92
+</footer>
+
+<script>
+
+let ano = new Date().getFullYear();
+let numero = localStorage.getItem("orcamentoNumero") || 1;
+let numeroFormatado = ano + "-" + String(numero).padStart(3, '0');
+document.getElementById("numeroOrcamento").innerText = "Orçamento Nº " + numeroFormatado;
+localStorage.setItem("orcamentoNumero", parseInt(numero)+1);
+
+function moeda(v){
+return v.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+}
+
+function toNumber(v){
+return parseFloat((v||"0").replace(",", "."))||0;
+}
+
+const itens = document.getElementById("itens");
+
+for(let i=0;i<10;i++){
+let tr=document.createElement("tr");
+tr.innerHTML=`
+<td><input oninput="calcular()"></td>
+<td><input oninput="calcular()"></td>
+<td><input oninput="calcular()"></td>
+<td><span>R$ 0,00</span></td>
+`;
+itens.appendChild(tr);
+}
+
+function calcular(){
+let subtotal=0;
+
+[...itens.children].forEach(tr=>{
+let qtd=toNumber(tr.children[1].children[0].value);
+let val=toNumber(tr.children[2].children[0].value);
+let total=qtd*val;
+tr.children[3].children[0].innerText=moeda(total);
+subtotal+=total;
+});
+
+let desconto=toNumber(document.getElementById("desconto").value);
+
+document.getElementById("subtotal").innerText=moeda(subtotal);
+document.getElementById("totalFinal").innerText=moeda(subtotal-desconto);
+}
+
+function enviarWhatsApp(){
+let cliente=document.getElementById("cliente").value;
+let total=document.getElementById("totalFinal").innerText;
+let pagamento=document.getElementById("pagamento").value;
+
+let mensagem=`Olá ${cliente}, seu orçamento Nº ${numeroFormatado} na PLANETA DOS RETROVISORES ficou em ${total}. Forma de pagamento: ${pagamento}. Garantia de 30 dias.`;
+
+let url="https://wa.me/5516996073421?text="+encodeURIComponent(mensagem);
+window.open(url,"_blank");
+}
+
+</script>
+
+</body>
+</html>
