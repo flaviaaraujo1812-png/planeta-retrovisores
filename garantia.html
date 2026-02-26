@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Orçamento - Planeta dos Retrovisores</title>
+<title>Garantia - Planeta dos Retrovisores</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
@@ -10,15 +10,10 @@ body { margin:0; font-family:Arial; background:black; color:white; }
 header { text-align:center; padding:20px; border-bottom:2px solid gold; }
 header h1 { color:gold; margin:0; }
 header p { margin:3px 0; font-size:14px; }
-.container { max-width:1100px; margin:auto; padding:20px; }
-.card { background:#111; border:1px solid #222; border-radius:10px; padding:15px; margin-bottom:15px; }
-input, select { width:100%; padding:8px; margin-bottom:8px; background:black; border:1px solid #333; color:white; border-radius:6px; }
-table { width:100%; border-collapse:collapse; }
-th { color:gold; border-bottom:1px solid #333; padding:6px; }
-td { border-bottom:1px solid #222; padding:5px; }
+.container { max-width:900px; margin:auto; padding:20px; }
+.card { background:#111; border:1px solid #222; border-radius:10px; padding:20px; }
+input { width:100%; padding:8px; margin-bottom:10px; background:black; border:1px solid #333; color:white; border-radius:6px; }
 button { background:gold; border:none; padding:12px; width:100%; border-radius:6px; font-weight:bold; cursor:pointer; margin-top:10px; }
-.valor { color:gold; font-weight:bold; }
-.total-box { text-align:right; margin-top:10px; }
 </style>
 </head>
 
@@ -32,78 +27,47 @@ button { background:gold; border:none; padding:12px; width:100%; border-radius:6
 </header>
 
 <div class="container">
-
 <div class="card">
+
 <h3>Dados do Cliente</h3>
 <input placeholder="Nome do Cliente">
 <input placeholder="Telefone">
-<input placeholder="Placa">
-<input placeholder="Modelo do Veículo">
-<input type="date">
+<input placeholder="Placa do Veículo">
+<input placeholder="Serviço Realizado">
+<input type="date" id="dataServico">
+
+<h3>Termo de Garantia</h3>
+
+<p>
+A PLANETA DOS RETROVISORES concede garantia de 90 dias (3 meses)
+a partir da data do serviço realizado.
+</p>
+
+<p>
+A garantia cobre exclusivamente defeitos de instalação ou fabricação.
+Não cobre mau uso, impactos, acidentes, desgaste natural,
+modificações ou intervenções realizadas por terceiros.
+</p>
+
+<p>
+Validade da garantia:
+<b id="validade"></b>
+</p>
+
+<button onclick="window.print()">GERAR PDF GARANTIA</button>
+
 </div>
-
-<div class="card">
-<h3>Itens do Orçamento</h3>
-
-<table>
-<thead>
-<tr>
-<th>Descrição</th>
-<th>Qtd</th>
-<th>Valor Unit.</th>
-<th>Total</th>
-</tr>
-</thead>
-<tbody id="itens"></tbody>
-</table>
-
-<div class="total-box">
-Subtotal: <span class="valor" id="subtotal">R$ 0,00</span><br>
-Desconto: <input id="desconto" style="width:120px; display:inline-block;" oninput="calcular()"><br>
-Total Final: <span class="valor" id="totalFinal">R$ 0,00</span>
-</div>
-
-<select>
-<option>Dinheiro</option>
-<option>Pix</option>
-<option>Cartão</option>
-</select>
-
-<button onclick="window.print()">GERAR PDF</button>
-</div>
-
 </div>
 
 <script>
-const itens = document.getElementById("itens");
+const dataInput = document.getElementById("dataServico");
+const validade = document.getElementById("validade");
 
-function moeda(v){return v.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});}
-function toNumber(v){return parseFloat((v||"0").replace(",", "."))||0;}
-
-for(let i=0;i<15;i++){
-let tr=document.createElement("tr");
-tr.innerHTML=`
-<td><input oninput="calcular()"></td>
-<td><input oninput="calcular()"></td>
-<td><input oninput="calcular()"></td>
-<td><span>R$ 0,00</span></td>
-`;
-itens.appendChild(tr);
-}
-
-function calcular(){
-let subtotal=0;
-[...itens.children].forEach(tr=>{
-let qtd=toNumber(tr.children[1].children[0].value);
-let val=toNumber(tr.children[2].children[0].value);
-let total=qtd*val;
-tr.children[3].children[0].innerText=moeda(total);
-subtotal+=total;
+dataInput.addEventListener("change", ()=>{
+let data = new Date(dataInput.value);
+data.setMonth(data.getMonth()+3);
+validade.innerText = data.toLocaleDateString("pt-BR");
 });
-let desconto=toNumber(document.getElementById("desconto").value);
-document.getElementById("subtotal").innerText=moeda(subtotal);
-document.getElementById("totalFinal").innerText=moeda(subtotal-desconto);
-}
 </script>
 
 </body>
