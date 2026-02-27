@@ -5,13 +5,11 @@
 <title>Orçamento</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<style>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#000000">
 
-/* ===== CONFIGURAÇÃO A4 ===== */
-@page {
-    size: A4;
-    margin: 12mm;
-}
+<style>
+@page { size: A4; margin: 12mm; }
 
 body{
     margin:0;
@@ -25,16 +23,13 @@ body{
     margin:auto;
 }
 
-/* ===== TOPO ===== */
 .topo{
     display:flex;
     align-items:center;
     gap:20px;
 }
 
-.topo img{
-    width:100px;
-}
+.topo img{ width:100px; }
 
 .dados-empresa{
     font-size:12px;
@@ -46,7 +41,6 @@ body{
     margin:8px 0 12px 0;
 }
 
-/* ===== TÍTULO ===== */
 .numero{
     text-align:center;
     font-weight:bold;
@@ -54,7 +48,6 @@ body{
     margin-bottom:10px;
 }
 
-/* ===== SEÇÕES ===== */
 h2{
     font-size:13px;
     margin:10px 0 5px 0;
@@ -75,7 +68,6 @@ input, select{
     border:1px solid #ccc;
 }
 
-/* ===== TABELA ===== */
 table{
     width:100%;
     border-collapse:collapse;
@@ -102,7 +94,6 @@ td:nth-child(4){
     text-align:center;
 }
 
-/* ===== TOTAL ===== */
 .total-area{
     margin-top:6px;
     text-align:right;
@@ -114,7 +105,6 @@ td:nth-child(4){
     font-size:14px;
 }
 
-/* ===== RODAPÉ ===== */
 .rodape{
     margin-top:10px;
     padding-top:6px;
@@ -124,7 +114,6 @@ td:nth-child(4){
     color:#555;
 }
 
-/* ===== BOTÃO ===== */
 button{
     margin-top:8px;
     width:100%;
@@ -137,11 +126,8 @@ button{
 }
 
 @media print{
-    button{
-        display:none;
-    }
+    button{ display:none; }
 }
-
 </style>
 </head>
 
@@ -207,7 +193,7 @@ Total Final: R$ <span id="totalFinal">0.00</span>
 </div>
 
 <div class="rodape">
-Este orçamento tem validade de 10 dias a partir da data de emissão.
+Este orçamento tem validade de 30 dias a partir da data de emissão.
 </div>
 
 <button onclick="window.print()">GERAR PDF</button>
@@ -215,14 +201,10 @@ Este orçamento tem validade de 10 dias a partir da data de emissão.
 </div>
 
 <script>
-
-// Número automático
 document.getElementById("numeroOrc").innerText =
 new Date().getFullYear() + "-" + Math.floor(Math.random()*900+100);
 
-// Criar 7 linhas
 const tabela = document.getElementById("tabelaItens");
-
 for(let i=0;i<7;i++){
     tabela.innerHTML += `
     <tr>
@@ -234,7 +216,6 @@ for(let i=0;i<7;i++){
     `;
 }
 
-// Cálculo automático
 function calcular(){
     let subtotal = 0;
     const qtds = document.querySelectorAll(".qtd");
@@ -250,13 +231,16 @@ function calcular(){
     document.getElementById("subtotal").innerText = subtotal.toFixed(2);
 
     let desconto = document.getElementById("desconto").value;
-    let totalFinal = subtotal - desconto;
-
-    document.getElementById("totalFinal").innerText = totalFinal.toFixed(2);
+    document.getElementById("totalFinal").innerText =
+    (subtotal - desconto).toFixed(2);
 }
 
 document.addEventListener("input", calcular);
 
+// Registrar Service Worker
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("service-worker.js");
+}
 </script>
 
 </body>
