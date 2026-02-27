@@ -2,88 +2,139 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Orçamento - Planeta dos Retrovisores</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Orçamento - Planeta dos Retrovisores</title>
 
 <style>
-body { margin:0; font-family:Arial; background:black; color:white; }
-header { text-align:center; padding:20px; border-bottom:2px solid gold; }
-header img { max-width:220px; margin-bottom:10px; }
-.numero { margin-top:10px; font-size:14px; color:#ccc; }
-
-.container { max-width:1100px; margin:auto; padding:20px; }
-.card { background:#111; border:1px solid #222; border-radius:10px; padding:15px; margin-bottom:15px; }
-
-input, select {
-width:100%;
-padding:8px;
-margin-bottom:8px;
-background:black;
-border:1px solid #333;
-color:white;
-border-radius:6px;
+body{
+    margin:0;
+    font-family:Arial, Helvetica, sans-serif;
+    background:linear-gradient(to bottom,#000,#111);
+    color:white;
 }
 
-table { width:100%; border-collapse:collapse; }
-th { color:gold; border-bottom:1px solid #333; padding:6px; }
-td { border-bottom:1px solid #222; padding:5px; }
-
-button {
-background:gold;
-border:none;
-padding:12px;
-width:100%;
-border-radius:6px;
-font-weight:bold;
-cursor:pointer;
-margin-top:10px;
+.topo{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:40px;
+    padding:25px;
+    border-bottom:2px solid gold;
+    flex-wrap:wrap;
 }
 
-.whats { background:#25D366; color:white; }
-
-.valor { color:gold; font-weight:bold; }
-
-.total-box {
-text-align:right;
-margin-top:10px;
-font-size:18px;
+.logo-area img{
+    max-width:220px;
 }
 
-.termo {
-margin-top:20px;
-font-size:13px;
-color:#ccc;
-border-top:1px solid #333;
-padding-top:15px;
-line-height:1.6;
+.empresa-area{
+    text-align:left;
 }
 
-footer {
-text-align:center;
-padding:15px;
-font-size:12px;
-border-top:1px solid #222;
-margin-top:20px;
-color:#888;
+.empresa-area h1{
+    color:gold;
+    margin-bottom:10px;
+}
+
+.empresa-area p{
+    margin:4px 0;
+}
+
+.container{
+    max-width:1100px;
+    margin:auto;
+    padding:20px;
+}
+
+.card{
+    background:#111;
+    padding:20px;
+    border-radius:10px;
+    margin-bottom:20px;
+    border:1px solid #222;
+}
+
+h2{
+    color:gold;
+}
+
+input, select{
+    width:100%;
+    padding:8px;
+    margin-bottom:8px;
+    background:#000;
+    border:1px solid #333;
+    color:white;
+    border-radius:5px;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:10px;
+}
+
+th{
+    color:gold;
+    border-bottom:1px solid #333;
+    padding:8px;
+}
+
+td{
+    padding:6px;
+}
+
+.total-area{
+    text-align:right;
+    margin-top:15px;
+}
+
+button{
+    width:100%;
+    padding:12px;
+    background:gold;
+    border:none;
+    font-weight:bold;
+    margin-top:10px;
+    cursor:pointer;
+    border-radius:6px;
+}
+
+button:hover{
+    background:#d4af37;
+}
+
+.rodape{
+    text-align:center;
+    padding:20px;
+    border-top:2px solid gold;
+    margin-top:40px;
+    font-size:14px;
 }
 </style>
 </head>
 
 <body>
 
-<header>
-<img src="Logo-nova.jpeg" alt="Logo Planeta dos Retrovisores">
-<p>CNPJ: 48.027.075/0001-92</p>
-<p>Av Treze de Maio, 1310 - CEP 14090-260</p>
-<p>WhatsApp: (16) 99607-3421</p>
-<div class="numero" id="numeroOrcamento"></div>
+<header class="topo">
+    <div class="logo-area">
+        <img src="logo.png" alt="Logo Planeta dos Retrovisores">
+    </div>
+
+    <div class="empresa-area">
+        <h1>PLANETA DOS RETROVISORES</h1>
+        <p><strong>CNPJ:</strong> 48.027.075/0001-92</p>
+        <p>Av Treze de Maio, 1310 - CEP 14090-260</p>
+        <p>WhatsApp: (16) 99607-3421</p>
+        <p><strong>Orçamento Nº <span id="numeroOrc"></span></strong></p>
+    </div>
 </header>
 
 <div class="container">
 
 <div class="card">
-<h3>Dados do Cliente</h3>
-<input id="cliente" placeholder="Nome do Cliente">
+<h2>Dados do Cliente</h2>
+<input placeholder="Nome do Cliente">
 <input placeholder="Telefone">
 <input placeholder="Placa">
 <input placeholder="Modelo do Veículo">
@@ -91,7 +142,7 @@ color:#888;
 </div>
 
 <div class="card">
-<h3>Itens do Orçamento</h3>
+<h2>Itens do Orçamento</h2>
 
 <table>
 <thead>
@@ -102,105 +153,78 @@ color:#888;
 <th>Total</th>
 </tr>
 </thead>
-<tbody id="itens"></tbody>
+
+<tbody id="tabelaItens">
+</tbody>
 </table>
 
-<div class="total-box">
-Subtotal: <span class="valor" id="subtotal">R$ 0,00</span><br>
-Desconto: <input id="desconto" style="width:120px; display:inline-block;" oninput="calcular()"><br>
-Total Final: <span class="valor" id="totalFinal">R$ 0,00</span>
-</div>
-
-<select id="pagamento">
+<select>
+<option>Forma de Pagamento</option>
 <option>Dinheiro</option>
 <option>Pix</option>
-<option>Cartão</option>
+<option>Cartão Crédito</option>
+<option>Cartão Débito</option>
 </select>
 
+<div class="total-area">
+<p><strong>Subtotal:</strong> R$ <span id="subtotal">0.00</span></p>
+<p><strong>Desconto:</strong> R$ <input type="number" id="desconto" value="0" style="width:100px; display:inline;"></p>
+<p style="font-size:20px;color:gold;">
+<strong>Total Final:</strong> R$ <span id="totalFinal">0.00</span>
+</p>
+</div>
+
 <button onclick="window.print()">GERAR PDF</button>
-<button class="whats" onclick="enviarWhatsApp()">ENVIAR PELO WHATSAPP</button>
-
-<div class="termo">
-<b style="color:gold;">TERMO DE GARANTIA</b><br><br>
-
-A PLANETA DOS RETROVISORES garante as peças e serviços executados pelo prazo de 30 (trinta) dias a partir da data da emissão deste documento.<br><br>
-
-A garantia cobre exclusivamente defeitos de fabricação ou falhas na instalação realizadas pela empresa.<br><br>
-
-Não estão cobertos:<br>
-• Mau uso ou instalação por terceiros<br>
-• Danos causados por acidentes<br>
-• Modificações após o serviço<br>
-• Problemas elétricos externos ao serviço executado<br><br>
-
-Para acionamento da garantia é obrigatória a apresentação deste orçamento.<br><br>
-
-⚠️ Este orçamento possui validade de 30 dias.
-</div>
 
 </div>
+</div>
 
-<footer>
-PLANETA DOS RETROVISORES - CNPJ 48.027.075/0001-92
-</footer>
+<div class="rodape">
+Este orçamento possui validade de 30 dias.<br>
+Garantia de 30 dias contra defeitos de instalação.
+</div>
 
 <script>
+// Número automático
+document.getElementById("numeroOrc").innerText =
+new Date().getFullYear() + "-" + Math.floor(Math.random()*1000);
 
-let ano = new Date().getFullYear();
-let numero = localStorage.getItem("orcamentoNumero") || 1;
-let numeroFormatado = ano + "-" + String(numero).padStart(3, '0');
-document.getElementById("numeroOrcamento").innerText = "Orçamento Nº " + numeroFormatado;
-localStorage.setItem("orcamentoNumero", parseInt(numero)+1);
-
-function moeda(v){
-return v.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
-}
-
-function toNumber(v){
-return parseFloat((v||"0").replace(",", "."))||0;
-}
-
-const itens = document.getElementById("itens");
+// Criar 10 linhas automáticas
+const tabela = document.getElementById("tabelaItens");
 
 for(let i=0;i<10;i++){
-let tr=document.createElement("tr");
-tr.innerHTML=`
-<td><input oninput="calcular()"></td>
-<td><input oninput="calcular()"></td>
-<td><input oninput="calcular()"></td>
-<td><span>R$ 0,00</span></td>
-`;
-itens.appendChild(tr);
+    tabela.innerHTML += `
+    <tr>
+        <td><input></td>
+        <td><input type="number" class="qtd" value="0"></td>
+        <td><input type="number" class="valor" value="0"></td>
+        <td>R$ <span class="linhaTotal">0.00</span></td>
+    </tr>
+    `;
 }
 
+// Cálculo automático
 function calcular(){
-let subtotal=0;
+    let subtotal = 0;
+    const qtds = document.querySelectorAll(".qtd");
+    const valores = document.querySelectorAll(".valor");
+    const totais = document.querySelectorAll(".linhaTotal");
 
-[...itens.children].forEach(tr=>{
-let qtd=toNumber(tr.children[1].children[0].value);
-let val=toNumber(tr.children[2].children[0].value);
-let total=qtd*val;
-tr.children[3].children[0].innerText=moeda(total);
-subtotal+=total;
-});
+    for(let i=0;i<qtds.length;i++){
+        let totalLinha = qtds[i].value * valores[i].value;
+        totais[i].innerText = totalLinha.toFixed(2);
+        subtotal += totalLinha;
+    }
 
-let desconto=toNumber(document.getElementById("desconto").value);
+    document.getElementById("subtotal").innerText = subtotal.toFixed(2);
 
-document.getElementById("subtotal").innerText=moeda(subtotal);
-document.getElementById("totalFinal").innerText=moeda(subtotal-desconto);
+    let desconto = document.getElementById("desconto").value;
+    let totalFinal = subtotal - desconto;
+
+    document.getElementById("totalFinal").innerText = totalFinal.toFixed(2);
 }
 
-function enviarWhatsApp(){
-let cliente=document.getElementById("cliente").value;
-let total=document.getElementById("totalFinal").innerText;
-let pagamento=document.getElementById("pagamento").value;
-
-let mensagem=`Olá ${cliente}, seu orçamento Nº ${numeroFormatado} na PLANETA DOS RETROVISORES ficou em ${total}. Forma de pagamento: ${pagamento}. Garantia de 30 dias.`;
-
-let url="https://wa.me/5516996073421?text="+encodeURIComponent(mensagem);
-window.open(url,"_blank");
-}
-
+document.addEventListener("input", calcular);
 </script>
 
 </body>
