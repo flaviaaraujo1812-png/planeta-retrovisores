@@ -6,69 +6,70 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
+@page { 
+    size: A4; 
+    margin: 20mm; 
+}
+
 body{
     margin:0;
     font-family:Arial, sans-serif;
-    background:#f4f4f4;
-    color:#222;
+    background:white;
+    color:#000;
+}
+
+.documento{
+    width:190mm;
+    margin:auto;
+    padding-top:20px;
 }
 
 .topo{
-    padding:30px 60px;
-}
-
-.dados-empresa{
-    font-size:14px;
-    line-height:1.6;
+    margin-bottom:15px;
 }
 
 .nome-empresa{
-    font-size:20px;
+    font-size:18px;
     font-weight:bold;
     margin-bottom:5px;
 }
 
-.linha{
-    border-top:1px solid #ccc;
-    width:90%;
-    margin:0 auto 30px auto;
+.dados-empresa{
+    font-size:12px;
+    line-height:1.6;
 }
 
-.container{
-    max-width:800px;
-    margin:0 auto 40px auto;
-    background:white;
-    padding:30px;
-    border-radius:6px;
-    box-shadow:0 0 8px rgba(0,0,0,0.05);
+.linha{
+    border-top:1px solid #000;
+    margin:10px 0 20px 0;
 }
 
 .numero{
     text-align:center;
     font-weight:bold;
-    margin-bottom:25px;
-    font-size:16px;
+    margin-bottom:20px;
+    font-size:14px;
 }
 
 h2{
-    font-size:16px;
-    margin-top:25px;
-    border-bottom:1px solid #ddd;
-    padding-bottom:5px;
+    font-size:13px;
+    margin-top:15px;
+    border-bottom:1px solid #000;
+    padding-bottom:3px;
 }
 
 .grid{
     display:grid;
     grid-template-columns:1fr 1fr;
-    gap:15px;
+    gap:10px;
+    margin-top:8px;
 }
 
 input, textarea{
     width:100%;
-    padding:8px;
-    border:1px solid #ccc;
-    border-radius:4px;
-    font-size:14px;
+    padding:6px;
+    font-size:12px;
+    border:1px solid #000;
 }
 
 textarea{
@@ -76,20 +77,20 @@ textarea{
 }
 
 .termo{
-    margin-top:20px;
-    font-size:14px;
+    margin-top:15px;
+    font-size:12px;
     line-height:1.6;
+    text-align:justify;
 }
 
 button{
-    margin-top:30px;
+    margin-top:20px;
     width:100%;
-    padding:12px;
+    padding:8px;
     border:none;
-    background:#000;
+    background:black;
     color:white;
     font-weight:bold;
-    border-radius:4px;
     cursor:pointer;
 }
 
@@ -97,20 +98,19 @@ button{
     button{
         display:none;
     }
-    body{
-        background:white;
-    }
 }
 </style>
 </head>
 
 <body>
 
+<div class="documento">
+
 <div class="topo">
+    <div class="nome-empresa">
+        PLANETA DOS RETROVISORES
+    </div>
     <div class="dados-empresa">
-        <div class="nome-empresa">
-            PLANETA DOS RETROVISORES
-        </div>
         CNPJ: 48.027.075/0001-92<br>
         Av Treze de Maio, 1310 - CEP 14090-260<br>
         WhatsApp: (16) 99607-3421
@@ -118,8 +118,6 @@ button{
 </div>
 
 <div class="linha"></div>
-
-<div class="container">
 
 <div class="numero">
 GARANTIA Nº <span id="numeroGarantia"></span>
@@ -143,8 +141,8 @@ GARANTIA Nº <span id="numeroGarantia"></span>
 <h2>Termo de Garantia</h2>
 
 <div class="termo">
-Garantia válida por 90 dias a partir da data de emissão.<br><br>
-Cobre exclusivamente defeitos relacionados à instalação realizada pela empresa.<br><br>
+Garantia válida por 30 dias a partir da data de emissão.  
+Cobre exclusivamente defeitos relacionados à instalação realizada pela empresa.  
 Não cobre danos decorrentes de mau uso, colisões, infiltrações ou alterações realizadas por terceiros.
 </div>
 
