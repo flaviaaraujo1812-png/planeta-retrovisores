@@ -2,92 +2,131 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Orçamento</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#000000">
 
 <style>
 @page { size: A4; margin: 12mm; }
 
 body{
-    font-family: Arial, sans-serif;
     margin:0;
+    font-family:Arial, sans-serif;
     background:white;
     color:#222;
 }
 
 .documento{
-    width:190mm;
+    width:186mm;
     margin:auto;
 }
 
 .topo{
-    margin-bottom:20px;
+    display:flex;
+    align-items:center;
+    gap:20px;
 }
 
-.empresa{
-    font-size:14px;
+.topo img{ width:100px; }
+
+.dados-empresa{
+    font-size:12px;
     line-height:1.4;
 }
 
-h1{
-    text-align:center;
-    margin:20px 0;
+.linha{
+    border-top:1px solid #ccc;
+    margin:8px 0 12px 0;
 }
 
-label{
-    font-size:13px;
+.numero{
+    text-align:center;
     font-weight:bold;
+    font-size:14px;
+    margin-bottom:10px;
+}
+
+h2{
+    font-size:13px;
+    margin:10px 0 5px 0;
+    border-bottom:1px solid #ddd;
+    padding-bottom:3px;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px;
 }
 
 input, select{
     width:100%;
-    padding:6px;
-    margin:4px 0 10px 0;
+    padding:4px;
+    font-size:11px;
     border:1px solid #ccc;
-    border-radius:4px;
 }
 
 table{
     width:100%;
     border-collapse:collapse;
-    margin-top:10px;
-}
-
-th, td{
-    border:1px solid #ccc;
-    padding:6px;
-    font-size:13px;
+    font-size:11px;
 }
 
 th{
-    background:#f5f5f5;
+    border-bottom:1px solid #999;
+    padding:4px;
+    text-align:left;
 }
 
-.total{
+td{
+    padding:3px;
+    border-bottom:1px solid #eee;
+}
+
+th:nth-child(2),
+th:nth-child(3),
+th:nth-child(4),
+td:nth-child(2),
+td:nth-child(3),
+td:nth-child(4){
+    text-align:center;
+}
+
+.total-area{
+    margin-top:6px;
     text-align:right;
-    margin-top:15px;
-    font-size:15px;
+    font-size:12px;
+}
+
+.total-final{
+    font-weight:bold;
+    font-size:14px;
 }
 
 .rodape{
-    margin-top:25px;
-    font-size:12px;
+    margin-top:10px;
+    padding-top:6px;
+    border-top:1px solid #ccc;
     text-align:center;
+    font-size:10px;
     color:#555;
 }
 
 button{
+    margin-top:8px;
     width:100%;
-    padding:12px;
-    margin-top:15px;
+    padding:8px;
     border:none;
-    background:#000;
-    color:#fff;
+    background:black;
+    color:white;
     font-weight:bold;
-    border-radius:5px;
     cursor:pointer;
+}
+
+@media print{
+    button{ display:none; }
 }
 </style>
 </head>
@@ -97,69 +136,112 @@ button{
 <div class="documento">
 
 <div class="topo">
-<div class="empresa">
-<strong>PLANETA DOS RETROVISORES</strong><br>
-CNPJ: 48.027.075/0001-92<br>
-Av Treze de Maio, 1310 - CEP 14090-260<br>
-WhatsApp: (16) 99607-3421
+    <img src="logo-nova.jpeg">
+    <div class="dados-empresa">
+        CNPJ: 48.027.075/0001-92<br>
+        Av Treze de Maio, 1310 - CEP 14090-260<br>
+        WhatsApp: (16) 99607-3421
+    </div>
 </div>
+
+<div class="linha"></div>
+
+<div class="numero">
+ORÇAMENTO Nº <span id="numeroOrc"></span>
 </div>
 
-<h1>ORÇAMENTO</h1>
+<h2>Dados do Cliente</h2>
 
-<label>Nome do Cliente</label>
-<input type="text">
+<div class="grid">
+<input placeholder="Nome do Cliente">
+<input placeholder="Telefone">
+<input placeholder="Placa do Veículo">
+<input placeholder="Modelo do Veículo">
+</div>
 
-<label>Telefone</label>
-<input type="text">
-
-<label>Placa do Veículo</label>
-<input type="text">
-
-<label>Modelo do Veículo</label>
-<input type="text">
-
-<label>Data</label>
+<br>
 <input type="date">
 
+<h2>Itens do Orçamento</h2>
+
 <table>
+<thead>
 <tr>
 <th>Descrição</th>
-<th style="width:60px;">Qtd</th>
-<th style="width:110px;">Valor Unit.</th>
-<th style="width:110px;">Total</th>
+<th>Qtd</th>
+<th>Valor Unit.</th>
+<th>Total</th>
 </tr>
-
-<!-- 7 LINHAS -->
-<tr><td><input></td><td><input type="number"></td><td><input type="number"></td><td></td></tr>
-<tr><td><input></td><td><input type="number"></td><td><input type="number"></td><td></td></tr>
-<tr><td><input></td><td><input type="number"></td><td><input type="number"></td><td></td></tr>
-<tr><td><input></td><td><input type="number"></td><td><input type="number"></td><td></td></tr>
-<tr><td><input></td><td><input type="number"></td><td><input type="number"></td><td></td></tr>
-<tr><td><input></td><td><input type="number"></td><td><input type="number"></td><td></td></tr>
-<tr><td><input></td><td><input type="number"></td><td><input type="number"></td><td></td></tr>
-
+</thead>
+<tbody id="tabelaItens"></tbody>
 </table>
 
-<label>Forma de Pagamento</label>
-<select>
+<select style="margin-top:5px;">
+<option>Forma de Pagamento</option>
 <option>Dinheiro</option>
 <option>Pix</option>
-<option>Cartão</option>
-<option>Boleto</option>
+<option>Cartão Crédito</option>
+<option>Cartão Débito</option>
 </select>
 
-<div class="total">
-<strong>Total Final: R$ 0,00</strong>
+<div class="total-area">
+<p>Subtotal: R$ <span id="subtotal">0.00</span></p>
+<p>Desconto: R$ <input type="number" id="desconto" value="0" style="width:70px;"></p>
+<p class="total-final">
+Total Final: R$ <span id="totalFinal">0.00</span>
+</p>
 </div>
 
 <div class="rodape">
 Este orçamento tem validade de 30 dias a partir da data de emissão.
 </div>
 
-<button>GERAR PDF</button>
+<button onclick="window.print()">GERAR PDF</button>
 
 </div>
+
+<script>
+document.getElementById("numeroOrc").innerText =
+new Date().getFullYear() + "-" + Math.floor(Math.random()*900+100);
+
+const tabela = document.getElementById("tabelaItens");
+for(let i=0;i<7;i++){
+    tabela.innerHTML += `
+    <tr>
+        <td><input></td>
+        <td><input type="number" class="qtd" value="0"></td>
+        <td><input type="number" class="valor" value="0"></td>
+        <td>R$ <span class="linhaTotal">0.00</span></td>
+    </tr>
+    `;
+}
+
+function calcular(){
+    let subtotal = 0;
+    const qtds = document.querySelectorAll(".qtd");
+    const valores = document.querySelectorAll(".valor");
+    const totais = document.querySelectorAll(".linhaTotal");
+
+    for(let i=0;i<qtds.length;i++){
+        let totalLinha = qtds[i].value * valores[i].value;
+        totais[i].innerText = totalLinha.toFixed(2);
+        subtotal += totalLinha;
+    }
+
+    document.getElementById("subtotal").innerText = subtotal.toFixed(2);
+
+    let desconto = document.getElementById("desconto").value;
+    document.getElementById("totalFinal").innerText =
+    (subtotal - desconto).toFixed(2);
+}
+
+document.addEventListener("input", calcular);
+
+// Registrar Service Worker
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("service-worker.js");
+}
+</script>
 
 </body>
 </html>
