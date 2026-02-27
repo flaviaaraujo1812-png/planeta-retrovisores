@@ -8,76 +8,96 @@
 <style>
 body{
     margin:0;
-    font-family:Arial, sans-serif;
-    background:#0f0f0f;
-    color:white;
+    font-family: Arial, sans-serif;
+    background:#f4f4f4;
+    color:#222;
 }
 
-header{
-    display:flex;
-    align-items:center;
-    gap:30px;
-    padding:30px;
-    border-bottom:2px solid gold;
+.header{
+    text-align:center;
+    padding:30px 20px 10px 20px;
 }
 
-header img{
-    width:180px;
+.header img{
+    width:140px;
+    margin-bottom:10px;
 }
 
-.empresa h1{
-    color:gold;
-    margin:0;
+.header p{
+    margin:3px 0;
+    font-size:14px;
+}
+
+.linha{
+    border-top:1px solid #ccc;
+    margin:20px auto;
+    width:90%;
 }
 
 .container{
-    max-width:900px;
-    margin:40px auto;
+    max-width:800px;
+    margin:30px auto;
+    background:white;
     padding:30px;
-    background:#1a1a1a;
-    border-radius:10px;
-    position:relative;
-    overflow:hidden;
-}
-
-.container::before{
-    content:"";
-    position:absolute;
-    background:url('Logo-nova.jpeg') center no-repeat;
-    background-size:300px;
-    opacity:0.05;
-    top:0;
-    left:0;
-    right:0;
-    bottom:0;
+    border-radius:6px;
+    box-shadow:0 0 10px rgba(0,0,0,0.05);
 }
 
 h2{
-    color:gold;
+    margin-top:30px;
+    font-size:18px;
+    border-bottom:1px solid #ddd;
+    padding-bottom:5px;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:15px;
 }
 
 input, textarea{
     width:100%;
-    padding:10px;
-    margin-bottom:15px;
-    background:#111;
-    border:1px solid #333;
-    color:white;
-    border-radius:5px;
+    padding:8px;
+    border:1px solid #ccc;
+    border-radius:4px;
+    font-size:14px;
+}
+
+textarea{
+    resize:none;
+}
+
+.numero{
+    text-align:center;
+    font-weight:bold;
+    margin-top:10px;
+}
+
+.termo{
+    margin-top:20px;
+    font-size:14px;
+    line-height:1.6;
+}
+
+.botoes{
+    margin-top:30px;
+    display:flex;
+    gap:10px;
 }
 
 button{
-    width:100%;
-    padding:15px;
-    margin-top:10px;
+    flex:1;
+    padding:12px;
     border:none;
-    border-radius:5px;
+    border-radius:4px;
     font-weight:bold;
     cursor:pointer;
 }
 
 .btn-pdf{
-    background:gold;
+    background:#000;
+    color:white;
 }
 
 .btn-whatsapp{
@@ -85,41 +105,41 @@ button{
     color:white;
 }
 
-.numero{
-    margin-top:10px;
-    font-weight:bold;
-}
-
-footer{
-    text-align:center;
-    margin:40px 0;
-    font-size:14px;
-    color:#ccc;
+@media print{
+    .botoes{
+        display:none;
+    }
 }
 </style>
 </head>
 
 <body>
 
-<header>
-    <img src="Logo-nova.jpeg" alt="Logo">
-    <div class="empresa">
-        <h1>PLANETA DOS RETROVISORES</h1>
-        <p>CNPJ: 48.027.075/0001-92</p>
-        <p>Av Treze de Maio, 1310 - CEP 14090-260</p>
-        <p>WhatsApp: (16) 99607-3421</p>
-        <div class="numero">Garantia Nº <span id="numeroGarantia"></span></div>
-    </div>
-</header>
+<div class="header">
+    <img src="logo-nova.jpeg" alt="Logo">
+    <p><strong>CNPJ:</strong> 48.027.075/0001-92</p>
+    <p>Av Treze de Maio, 1310 - CEP 14090-260</p>
+    <p>WhatsApp: (16) 99607-3421</p>
+</div>
+
+<div class="linha"></div>
 
 <div class="container">
 
+<div class="numero">
+Garantia Nº <span id="numeroGarantia"></span>
+</div>
+
 <h2>Dados do Cliente</h2>
 
+<div class="grid">
 <input type="text" placeholder="Nome do Cliente">
 <input type="text" placeholder="Telefone">
 <input type="text" placeholder="Placa do Veículo">
 <input type="text" placeholder="Modelo do Veículo">
+</div>
+
+<br>
 <input type="date">
 
 <h2>Descrição do Serviço</h2>
@@ -127,20 +147,18 @@ footer{
 
 <h2>Termo de Garantia</h2>
 
-<p>
-Garantia válida por 90 dias a partir da data de emissão.
-Cobre exclusivamente defeitos relacionados à instalação realizada pela empresa.
-Não cobre danos por mau uso, colisões, infiltração de água, alterações elétricas ou serviços executados por terceiros.
-</p>
-
-<button class="btn-pdf" onclick="window.print()">GERAR PDF</button>
-<button class="btn-whatsapp" onclick="enviarWhatsApp()">ENVIAR VIA WHATSAPP</button>
-
+<div class="termo">
+Garantia válida por 30 dias a partir da data de emissão.  
+Cobre exclusivamente defeitos relacionados à instalação realizada pela empresa.  
+Não cobre danos decorrentes de mau uso, colisões, infiltrações ou alterações realizadas por terceiros.
 </div>
 
-<footer>
-Planeta dos Retrovisores • CNPJ 48.027.075/0001-92
-</footer>
+<div class="botoes">
+<button class="btn-pdf" onclick="window.print()">GERAR PDF</button>
+<button class="btn-whatsapp" onclick="enviarWhatsApp()">ENVIAR WHATSAPP</button>
+</div>
+
+</div>
 
 <script>
 function gerarNumero(){
