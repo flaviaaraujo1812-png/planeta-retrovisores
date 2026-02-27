@@ -24,7 +24,7 @@ body{
 }
 
 .logo-area img{
-    max-width:220px;
+    max-width:250px;
 }
 
 .empresa-area{
@@ -34,10 +34,6 @@ body{
 .empresa-area h1{
     color:gold;
     margin-bottom:10px;
-}
-
-.empresa-area p{
-    margin:4px 0;
 }
 
 .container{
@@ -82,6 +78,11 @@ th{
 
 td{
     padding:6px;
+    text-align:center;
+}
+
+td input{
+    width:90%;
 }
 
 .total-area{
@@ -102,6 +103,11 @@ button{
 
 button:hover{
     background:#d4af37;
+}
+
+.whatsapp-btn{
+    background:#25D366;
+    margin-top:10px;
 }
 
 .rodape{
@@ -147,15 +153,13 @@ button:hover{
 <table>
 <thead>
 <tr>
-<th>Descrição</th>
+<th style="text-align:left;">Descrição</th>
 <th>Qtd</th>
 <th>Valor Unit.</th>
 <th>Total</th>
 </tr>
 </thead>
-
-<tbody id="tabelaItens">
-</tbody>
+<tbody id="tabelaItens"></tbody>
 </table>
 
 <select>
@@ -168,7 +172,7 @@ button:hover{
 
 <div class="total-area">
 <p><strong>Subtotal:</strong> R$ <span id="subtotal">0.00</span></p>
-<p><strong>Desconto:</strong> R$ <input type="number" id="desconto" value="0" style="width:100px; display:inline;"></p>
+<p><strong>Desconto:</strong> R$ <input type="number" id="desconto" value="0" style="width:100px;"></p>
 <p style="font-size:20px;color:gold;">
 <strong>Total Final:</strong> R$ <span id="totalFinal">0.00</span>
 </p>
@@ -176,26 +180,33 @@ button:hover{
 
 <button onclick="window.print()">GERAR PDF</button>
 
+<button class="whatsapp-btn" onclick="enviarWhatsApp()">
+ENVIAR ORÇAMENTO NO WHATSAPP
+</button>
+
 </div>
 </div>
 
 <div class="rodape">
 Este orçamento possui validade de 30 dias.<br>
-Garantia de 30 dias contra defeitos de instalação.
+Garantia de 30 dias contra defeitos de instalação.<br><br>
+<strong>Termo Profissional:</strong><br>
+Peças elétricas não possuem troca após instalação. Garantia válida apenas para defeito de fabricação ou instalação realizada pela empresa.
 </div>
 
 <script>
+
 // Número automático
 document.getElementById("numeroOrc").innerText =
 new Date().getFullYear() + "-" + Math.floor(Math.random()*1000);
 
-// Criar 10 linhas automáticas
+// Criar 10 linhas
 const tabela = document.getElementById("tabelaItens");
 
 for(let i=0;i<10;i++){
     tabela.innerHTML += `
     <tr>
-        <td><input></td>
+        <td><input style="text-align:left;"></td>
         <td><input type="number" class="qtd" value="0"></td>
         <td><input type="number" class="valor" value="0"></td>
         <td>R$ <span class="linhaTotal">0.00</span></td>
@@ -225,6 +236,15 @@ function calcular(){
 }
 
 document.addEventListener("input", calcular);
+
+// Botão WhatsApp
+function enviarWhatsApp(){
+    let total = document.getElementById("totalFinal").innerText;
+    let numero = document.getElementById("numeroOrc").innerText;
+    let mensagem = `Olá! Segue orçamento Nº ${numero}.\nTotal: R$ ${total}`;
+    window.open(`https://wa.me/5516996073421?text=${encodeURIComponent(mensagem)}`);
+}
+
 </script>
 
 </body>
