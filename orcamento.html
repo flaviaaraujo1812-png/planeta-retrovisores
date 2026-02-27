@@ -2,15 +2,15 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
+<title>Orçamento</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Orçamento - Planeta dos Retrovisores</title>
 
 <style>
 body{
     margin:0;
-    font-family:Arial, Helvetica, sans-serif;
-    background:linear-gradient(to bottom,#000,#111);
-    color:white;
+    font-family:Arial, sans-serif;
+    background:#f4f4f4;
+    color:#222;
 }
 
 .topo{
@@ -18,141 +18,143 @@ body{
     align-items:center;
     justify-content:center;
     gap:40px;
-    padding:25px;
-    border-bottom:2px solid gold;
-    flex-wrap:wrap;
+    padding:30px;
 }
 
-.logo-area img{
-    max-width:250px;
+.topo img{
+    width:150px;
 }
 
-.empresa-area{
-    text-align:left;
+.dados-empresa{
+    font-size:14px;
+    line-height:1.6;
 }
 
-.empresa-area h1{
-    color:gold;
-    margin-bottom:10px;
+.linha{
+    border-top:1px solid #ccc;
+    width:90%;
+    margin:0 auto 30px auto;
 }
 
 .container{
-    max-width:1100px;
-    margin:auto;
-    padding:20px;
+    max-width:900px;
+    margin:0 auto 40px auto;
+    background:white;
+    padding:30px;
+    border-radius:6px;
+    box-shadow:0 0 8px rgba(0,0,0,0.05);
 }
 
-.card{
-    background:#111;
-    padding:20px;
-    border-radius:10px;
-    margin-bottom:20px;
-    border:1px solid #222;
+.numero{
+    text-align:center;
+    font-weight:bold;
+    margin-bottom:25px;
+    font-size:16px;
 }
 
 h2{
-    color:gold;
+    font-size:16px;
+    margin-top:25px;
+    border-bottom:1px solid #ddd;
+    padding-bottom:5px;
 }
 
-input, select{
+.grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:15px;
+}
+
+input, textarea, select{
     width:100%;
     padding:8px;
-    margin-bottom:8px;
-    background:#000;
-    border:1px solid #333;
-    color:white;
-    border-radius:5px;
+    border:1px solid #ccc;
+    border-radius:4px;
+    font-size:14px;
 }
 
 table{
     width:100%;
     border-collapse:collapse;
-    margin-top:10px;
+    margin-top:15px;
 }
 
 th{
-    color:gold;
-    border-bottom:1px solid #333;
+    border-bottom:1px solid #ccc;
     padding:8px;
+    text-align:left;
+    font-weight:bold;
 }
 
 td{
     padding:6px;
-    text-align:center;
-}
-
-td input{
-    width:90%;
 }
 
 .total-area{
+    margin-top:20px;
     text-align:right;
-    margin-top:15px;
 }
 
 button{
+    margin-top:30px;
     width:100%;
     padding:12px;
-    background:gold;
     border:none;
+    background:#000;
+    color:white;
     font-weight:bold;
-    margin-top:10px;
+    border-radius:4px;
     cursor:pointer;
-    border-radius:6px;
 }
 
-button:hover{
-    background:#d4af37;
-}
-
-.whatsapp-btn{
-    background:#25D366;
-    margin-top:10px;
-}
-
-.rodape{
-    text-align:center;
-    padding:20px;
-    border-top:2px solid gold;
-    margin-top:40px;
-    font-size:14px;
+@media print{
+    button{
+        display:none;
+    }
+    body{
+        background:white;
+    }
 }
 </style>
 </head>
 
 <body>
 
-<header class="topo">
-    <div class="logo-area">
-        <img src="Logo-nova.jpeg" alt="Logo Planeta dos Retrovisores">
+<div class="topo">
+    <img src="Logo-nova.jpeg" alt="Logo">
+    <div class="dados-empresa">
+        CNPJ: 48.027.075/0001-92<br>
+        Av Treze de Maio, 1310 - CEP 14090-260<br>
+        WhatsApp: (16) 99607-3421
     </div>
+</div>
 
-    <div class="empresa-area">
-        <p><strong>CNPJ:</strong> 48.027.075/0001-92</p>
-        <p>Av Treze de Maio, 1310 - CEP 14090-260</p>
-        <p>WhatsApp: (16) 99607-3421</p>
-        <p><strong>Orçamento Nº <span id="numeroOrc"></span></strong></p>
-    </div>
-</header>
+<div class="linha"></div>
 
 <div class="container">
 
-<div class="card">
-<h2>Dados do Cliente</h2>
-<input placeholder="Nome do Cliente">
-<input placeholder="Telefone">
-<input placeholder="Placa">
-<input placeholder="Modelo do Veículo">
-<input type="date">
+<div class="numero">
+ORÇAMENTO Nº <span id="numeroOrc"></span>
 </div>
 
-<div class="card">
+<h2>Dados do Cliente</h2>
+
+<div class="grid">
+<input type="text" placeholder="Nome do Cliente">
+<input type="text" placeholder="Telefone">
+<input type="text" placeholder="Placa do Veículo">
+<input type="text" placeholder="Modelo do Veículo">
+</div>
+
+<br>
+<input type="date">
+
 <h2>Itens do Orçamento</h2>
 
 <table>
 <thead>
 <tr>
-<th style="text-align:left;">Descrição</th>
+<th>Descrição</th>
 <th>Qtd</th>
 <th>Valor Unit.</th>
 <th>Total</th>
@@ -161,6 +163,7 @@ button:hover{
 <tbody id="tabelaItens"></tbody>
 </table>
 
+<br>
 <select>
 <option>Forma de Pagamento</option>
 <option>Dinheiro</option>
@@ -172,37 +175,27 @@ button:hover{
 <div class="total-area">
 <p><strong>Subtotal:</strong> R$ <span id="subtotal">0.00</span></p>
 <p><strong>Desconto:</strong> R$ <input type="number" id="desconto" value="0" style="width:100px;"></p>
-<p style="font-size:20px;color:gold;">
+<p style="font-size:18px;">
 <strong>Total Final:</strong> R$ <span id="totalFinal">0.00</span>
 </p>
 </div>
 
 <button onclick="window.print()">GERAR PDF</button>
 
-<button class="whatsapp-btn" onclick="enviarWhatsApp()">
-ENVIAR ORÇAMENTO NO WHATSAPP
-</button>
-
-</div>
-</div>
-
-<div class="rodape">
-Orçamento válido por 30 dias.<br>
 </div>
 
 <script>
-
 // Número automático
 document.getElementById("numeroOrc").innerText =
-new Date().getFullYear() + "-" + Math.floor(Math.random()*1000);
+new Date().getFullYear() + "-" + Math.floor(Math.random()*900+100);
 
-// Criar 10 linhas
+// Criar 10 linhas automáticas
 const tabela = document.getElementById("tabelaItens");
 
 for(let i=0;i<10;i++){
     tabela.innerHTML += `
     <tr>
-        <td><input style="text-align:left;"></td>
+        <td><input></td>
         <td><input type="number" class="qtd" value="0"></td>
         <td><input type="number" class="valor" value="0"></td>
         <td>R$ <span class="linhaTotal">0.00</span></td>
@@ -232,15 +225,6 @@ function calcular(){
 }
 
 document.addEventListener("input", calcular);
-
-// Botão WhatsApp
-function enviarWhatsApp(){
-    let total = document.getElementById("totalFinal").innerText;
-    let numero = document.getElementById("numeroOrc").innerText;
-    let mensagem = `Olá! Segue orçamento Nº ${numero}.\nTotal: R$ ${total}`;
-    window.open(`https://wa.me/5516996073421?text=${encodeURIComponent(mensagem)}`);
-}
-
 </script>
 
 </body>
