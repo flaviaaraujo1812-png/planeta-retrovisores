@@ -6,6 +6,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
+
+/* ===== TAMANHO A4 ===== */
+@page {
+    size: A4;
+    margin: 15mm;
+}
+
 body{
     margin:0;
     font-family:Arial, sans-serif;
@@ -13,81 +20,80 @@ body{
     color:#222;
 }
 
+.documento{
+    width:210mm;
+    min-height:297mm;
+    margin:auto;
+    background:white;
+    padding:15mm;
+    box-sizing:border-box;
+}
+
+/* ===== TOPO ===== */
 .topo{
     display:flex;
     align-items:center;
-    justify-content:center;
-    gap:40px;
-    padding:30px;
+    gap:25px;
 }
 
 .topo img{
-    width:150px;
+    width:120px;
 }
 
 .dados-empresa{
-    font-size:14px;
-    line-height:1.6;
+    font-size:13px;
+    line-height:1.5;
 }
 
 .linha{
     border-top:1px solid #ccc;
-    width:90%;
-    margin:0 auto 30px auto;
+    margin:10px 0 20px 0;
 }
 
-.container{
-    max-width:900px;
-    margin:0 auto 40px auto;
-    background:white;
-    padding:30px;
-    border-radius:6px;
-    box-shadow:0 0 8px rgba(0,0,0,0.05);
-}
-
+/* ===== TÍTULOS ===== */
 .numero{
     text-align:center;
     font-weight:bold;
-    margin-bottom:25px;
-    font-size:16px;
+    font-size:15px;
+    margin-bottom:15px;
 }
 
 h2{
-    font-size:16px;
-    margin-top:25px;
+    font-size:14px;
+    margin:15px 0 8px 0;
     border-bottom:1px solid #ddd;
-    padding-bottom:5px;
+    padding-bottom:3px;
 }
 
+/* ===== CAMPOS ===== */
 .grid{
     display:grid;
     grid-template-columns:1fr 1fr;
-    gap:15px;
+    gap:10px;
 }
 
-input, textarea, select{
+input, select{
     width:100%;
-    padding:8px;
+    padding:5px;
+    font-size:12px;
     border:1px solid #ccc;
-    border-radius:4px;
-    font-size:14px;
 }
 
+/* ===== TABELA ===== */
 table{
     width:100%;
     border-collapse:collapse;
-    margin-top:15px;
+    font-size:12px;
 }
 
 th{
-    border-bottom:2px solid #ccc;
-    padding:10px;
+    border-bottom:1px solid #999;
+    padding:6px;
     text-align:left;
-    font-weight:bold;
 }
 
 td{
-    padding:8px;
+    padding:4px;
     border-bottom:1px solid #eee;
 }
 
@@ -100,56 +106,58 @@ td:nth-child(4){
     text-align:center;
 }
 
+/* ===== TOTAL ===== */
 .total-area{
-    margin-top:20px;
+    margin-top:10px;
     text-align:right;
-}
-
-.total-area p{
-    margin:5px 0;
+    font-size:13px;
 }
 
 .total-final{
-    font-size:18px;
     font-weight:bold;
+    font-size:15px;
 }
 
-button{
-    margin-top:30px;
-    width:100%;
-    padding:12px;
-    border:none;
-    background:#000;
-    color:white;
-    font-weight:bold;
-    border-radius:4px;
-    cursor:pointer;
-}
-
+/* ===== RODAPÉ ===== */
 .rodape{
-    margin-top:40px;
-    padding-top:15px;
+    margin-top:15px;
+    padding-top:8px;
     border-top:1px solid #ccc;
     text-align:center;
-    font-size:13px;
+    font-size:11px;
     color:#555;
 }
 
+/* ===== BOTÃO (não aparece no PDF) ===== */
+button{
+    margin-top:15px;
+    width:100%;
+    padding:10px;
+    border:none;
+    background:black;
+    color:white;
+    font-weight:bold;
+    cursor:pointer;
+}
+
 @media print{
-    button{
-        display:none;
-    }
     body{
         background:white;
     }
+    button{
+        display:none;
+    }
 }
+
 </style>
 </head>
 
 <body>
 
+<div class="documento">
+
 <div class="topo">
-    <img src="Logo-nova.jpeg" alt="Logo">
+    <img src="Logo-nova.jpeg">
     <div class="dados-empresa">
         CNPJ: 48.027.075/0001-92<br>
         Av Treze de Maio, 1310 - CEP 14090-260<br>
@@ -159,8 +167,6 @@ button{
 
 <div class="linha"></div>
 
-<div class="container">
-
 <div class="numero">
 ORÇAMENTO Nº <span id="numeroOrc"></span>
 </div>
@@ -168,10 +174,10 @@ ORÇAMENTO Nº <span id="numeroOrc"></span>
 <h2>Dados do Cliente</h2>
 
 <div class="grid">
-<input type="text" placeholder="Nome do Cliente">
-<input type="text" placeholder="Telefone">
-<input type="text" placeholder="Placa do Veículo">
-<input type="text" placeholder="Modelo do Veículo">
+<input placeholder="Nome do Cliente">
+<input placeholder="Telefone">
+<input placeholder="Placa do Veículo">
+<input placeholder="Modelo do Veículo">
 </div>
 
 <br>
@@ -191,8 +197,7 @@ ORÇAMENTO Nº <span id="numeroOrc"></span>
 <tbody id="tabelaItens"></tbody>
 </table>
 
-<br>
-<select>
+<select style="margin-top:8px;">
 <option>Forma de Pagamento</option>
 <option>Dinheiro</option>
 <option>Pix</option>
@@ -201,30 +206,31 @@ ORÇAMENTO Nº <span id="numeroOrc"></span>
 </select>
 
 <div class="total-area">
-<p><strong>Subtotal:</strong> R$ <span id="subtotal">0.00</span></p>
-<p><strong>Desconto:</strong> R$ <input type="number" id="desconto" value="0" style="width:100px;"></p>
+<p>Subtotal: R$ <span id="subtotal">0.00</span></p>
+<p>Desconto: R$ <input type="number" id="desconto" value="0" style="width:80px;"></p>
 <p class="total-final">
 Total Final: R$ <span id="totalFinal">0.00</span>
 </p>
 </div>
 
-<button onclick="window.print()">GERAR PDF</button>
-
 <div class="rodape">
 Este orçamento tem validade de 30 dias a partir da data de emissão.
 </div>
 
+<button onclick="window.print()">GERAR PDF</button>
+
 </div>
 
 <script>
+
 // Número automático
 document.getElementById("numeroOrc").innerText =
 new Date().getFullYear() + "-" + Math.floor(Math.random()*900+100);
 
-// Criar 10 linhas
+// Criar 8 linhas (reduzido para caber A4)
 const tabela = document.getElementById("tabelaItens");
 
-for(let i=0;i<10;i++){
+for(let i=0;i<8;i++){
     tabela.innerHTML += `
     <tr>
         <td><input></td>
@@ -257,6 +263,7 @@ function calcular(){
 }
 
 document.addEventListener("input", calcular);
+
 </script>
 
 </body>
