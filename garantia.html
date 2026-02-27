@@ -6,68 +6,155 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-body { margin:0; font-family:Arial; background:black; color:white; }
-header { text-align:center; padding:20px; border-bottom:2px solid gold; }
-header h1 { color:gold; margin:0; }
-header p { margin:3px 0; font-size:14px; }
-.container { max-width:900px; margin:auto; padding:20px; }
-.card { background:#111; border:1px solid #222; border-radius:10px; padding:20px; }
-input { width:100%; padding:8px; margin-bottom:10px; background:black; border:1px solid #333; color:white; border-radius:6px; }
-button { background:gold; border:none; padding:12px; width:100%; border-radius:6px; font-weight:bold; cursor:pointer; margin-top:10px; }
+body{
+    margin:0;
+    font-family:Arial, sans-serif;
+    background:#0f0f0f;
+    color:white;
+}
+
+header{
+    display:flex;
+    align-items:center;
+    gap:30px;
+    padding:30px;
+    border-bottom:2px solid gold;
+}
+
+header img{
+    width:180px;
+}
+
+.empresa h1{
+    color:gold;
+    margin:0;
+}
+
+.container{
+    max-width:900px;
+    margin:40px auto;
+    padding:30px;
+    background:#1a1a1a;
+    border-radius:10px;
+    position:relative;
+    overflow:hidden;
+}
+
+.container::before{
+    content:"";
+    position:absolute;
+    background:url('logo-nova.jpeg') center no-repeat;
+    background-size:300px;
+    opacity:0.05;
+    top:0;
+    left:0;
+    right:0;
+    bottom:0;
+}
+
+h2{
+    color:gold;
+}
+
+input, textarea{
+    width:100%;
+    padding:10px;
+    margin-bottom:15px;
+    background:#111;
+    border:1px solid #333;
+    color:white;
+    border-radius:5px;
+}
+
+button{
+    width:100%;
+    padding:15px;
+    margin-top:10px;
+    border:none;
+    border-radius:5px;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+.btn-pdf{
+    background:gold;
+}
+
+.btn-whatsapp{
+    background:#25D366;
+    color:white;
+}
+
+.numero{
+    margin-top:10px;
+    font-weight:bold;
+}
+
+footer{
+    text-align:center;
+    margin:40px 0;
+    font-size:14px;
+    color:#ccc;
+}
 </style>
 </head>
 
 <body>
 
 <header>
-<h1>PLANETA DOS RETROVISORES</h1>
-<p>CNPJ: 48.027.075/0001-92</p>
-<p>Endereço: CEP 14090-260 - Av Treze de Maio, 1310</p>
-<p>Telefone / WhatsApp: (16) 99607-3421</p>
+    <img src="logo-nova.jpeg" alt="Logo">
+    <div class="empresa">
+        <h1>PLANETA DOS RETROVISORES</h1>
+        <p>CNPJ: 48.027.075/0001-92</p>
+        <p>Av Treze de Maio, 1310 - CEP 14090-260</p>
+        <p>WhatsApp: (16) 99607-3421</p>
+        <div class="numero">Garantia Nº <span id="numeroGarantia"></span></div>
+    </div>
 </header>
 
 <div class="container">
-<div class="card">
 
-<h3>Dados do Cliente</h3>
-<input placeholder="Nome do Cliente">
-<input placeholder="Telefone">
-<input placeholder="Placa do Veículo">
-<input placeholder="Serviço Realizado">
-<input type="date" id="dataServico">
+<h2>Dados do Cliente</h2>
 
-<h3>Termo de Garantia</h3>
+<input type="text" placeholder="Nome do Cliente">
+<input type="text" placeholder="Telefone">
+<input type="text" placeholder="Placa do Veículo">
+<input type="text" placeholder="Modelo do Veículo">
+<input type="date">
 
-<p>
-A PLANETA DOS RETROVISORES concede garantia de 90 dias (3 meses)
-a partir da data do serviço realizado.
-</p>
+<h2>Descrição do Serviço</h2>
+<textarea rows="4" placeholder="Descreva o serviço realizado..."></textarea>
+
+<h2>Termo de Garantia</h2>
 
 <p>
-A garantia cobre exclusivamente defeitos de instalação ou fabricação.
-Não cobre mau uso, impactos, acidentes, desgaste natural,
-modificações ou intervenções realizadas por terceiros.
+Garantia válida por 30 dias a partir da data de emissão.
+Cobre exclusivamente defeitos relacionados à instalação realizada pela empresa.
+Não cobre danos por mau uso, colisões, infiltração de água, alterações elétricas ou serviços executados por terceiros.
 </p>
 
-<p>
-Validade da garantia:
-<b id="validade"></b>
-</p>
-
-<button onclick="window.print()">GERAR PDF GARANTIA</button>
+<button class="btn-pdf" onclick="window.print()">GERAR PDF</button>
+<button class="btn-whatsapp" onclick="enviarWhatsApp()">ENVIAR VIA WHATSAPP</button>
 
 </div>
-</div>
+
+<footer>
+Planeta dos Retrovisores • CNPJ 48.027.075/0001-92
+</footer>
 
 <script>
-const dataInput = document.getElementById("dataServico");
-const validade = document.getElementById("validade");
+function gerarNumero(){
+    const ano = new Date().getFullYear();
+    const numero = Math.floor(Math.random()*900+100);
+    document.getElementById("numeroGarantia").innerText = ano + "-" + numero;
+}
+gerarNumero();
 
-dataInput.addEventListener("change", ()=>{
-let data = new Date(dataInput.value);
-data.setMonth(data.getMonth()+3);
-validade.innerText = data.toLocaleDateString("pt-BR");
-});
+function enviarWhatsApp(){
+    const numero = "5516996073421";
+    const mensagem = "Olá, segue a garantia do serviço realizado.";
+    window.open(`https://wa.me/${numero}?text=${encodeURIComponent(mensagem)}`);
+}
 </script>
 
 </body>
