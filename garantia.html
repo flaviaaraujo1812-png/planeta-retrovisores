@@ -8,44 +8,52 @@
 <style>
 body{
     margin:0;
-    font-family: Arial, sans-serif;
+    font-family:Arial, sans-serif;
     background:#f4f4f4;
     color:#222;
 }
 
-.header{
-    text-align:center;
-    padding:30px 20px 10px 20px;
+.topo{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:40px;
+    padding:30px;
 }
 
-.header img{
-    width:140px;
-    margin-bottom:10px;
+.topo img{
+    width:150px;
 }
 
-.header p{
-    margin:3px 0;
+.dados-empresa{
     font-size:14px;
+    line-height:1.6;
 }
 
 .linha{
     border-top:1px solid #ccc;
-    margin:20px auto;
     width:90%;
+    margin:0 auto 30px auto;
 }
 
 .container{
     max-width:800px;
-    margin:30px auto;
+    margin:0 auto 40px auto;
     background:white;
     padding:30px;
     border-radius:6px;
-    box-shadow:0 0 10px rgba(0,0,0,0.05);
+    box-shadow:0 0 8px rgba(0,0,0,0.05);
+}
+
+.numero{
+    text-align:center;
+    font-weight:bold;
+    margin-bottom:25px;
 }
 
 h2{
-    margin-top:30px;
-    font-size:18px;
+    font-size:16px;
+    margin-top:25px;
     border-bottom:1px solid #ddd;
     padding-bottom:5px;
 }
@@ -68,46 +76,30 @@ textarea{
     resize:none;
 }
 
-.numero{
-    text-align:center;
-    font-weight:bold;
-    margin-top:10px;
-}
-
 .termo{
     margin-top:20px;
     font-size:14px;
     line-height:1.6;
 }
 
-.botoes{
-    margin-top:30px;
-    display:flex;
-    gap:10px;
-}
-
 button{
-    flex:1;
+    margin-top:30px;
+    width:100%;
     padding:12px;
     border:none;
-    border-radius:4px;
+    background:#000;
+    color:white;
     font-weight:bold;
+    border-radius:4px;
     cursor:pointer;
 }
 
-.btn-pdf{
-    background:#000;
-    color:white;
-}
-
-.btn-whatsapp{
-    background:#25D366;
-    color:white;
-}
-
 @media print{
-    .botoes{
+    button{
         display:none;
+    }
+    body{
+        background:white;
     }
 }
 </style>
@@ -115,11 +107,14 @@ button{
 
 <body>
 
-<div class="header">
+<div class="topo">
     <img src="logo-nova.jpeg" alt="Logo">
-    <p><strong>CNPJ:</strong> 48.027.075/0001-92</p>
-    <p>Av Treze de Maio, 1310 - CEP 14090-260</p>
-    <p>WhatsApp: (16) 99607-3421</p>
+    <div class="dados-empresa">
+        <strong>PLANETA DOS RETROVISORES</strong><br>
+        CNPJ: 48.027.075/0001-92<br>
+        Av Treze de Maio, 1310 - CEP 14090-260<br>
+        WhatsApp: (16) 99607-3421
+    </div>
 </div>
 
 <div class="linha"></div>
@@ -153,10 +148,7 @@ Cobre exclusivamente defeitos relacionados à instalação realizada pela empres
 Não cobre danos decorrentes de mau uso, colisões, infiltrações ou alterações realizadas por terceiros.
 </div>
 
-<div class="botoes">
-<button class="btn-pdf" onclick="window.print()">GERAR PDF</button>
-<button class="btn-whatsapp" onclick="enviarWhatsApp()">ENVIAR WHATSAPP</button>
-</div>
+<button onclick="window.print()">GERAR PDF</button>
 
 </div>
 
@@ -167,12 +159,6 @@ function gerarNumero(){
     document.getElementById("numeroGarantia").innerText = ano + "-" + numero;
 }
 gerarNumero();
-
-function enviarWhatsApp(){
-    const numero = "5516996073421";
-    const mensagem = "Olá, segue a garantia do serviço realizado.";
-    window.open(`https://wa.me/${numero}?text=${encodeURIComponent(mensagem)}`);
-}
 </script>
 
 </body>
